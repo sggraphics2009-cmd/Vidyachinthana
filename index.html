@@ -1,172 +1,268 @@
-ryHtml;
 <!DOCTYPE html>
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>අපේ සඟරාව | Modern Magazine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+    <title>විද්‍යා චින්තන | සජීවී විද්‍යා සඟරාව</title>
+    
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <!-- Markdown parser -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    <!-- Markdown Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- GSAP for animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Font Awesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* (same styles as before – omitted for brevity, but must be included) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: #fefaf5;
-            color: #1f1a15;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
             line-height: 1.5;
-            transition: background 0.3s ease;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
         /* Header */
-        header {
-            background: rgba(255, 250, 240, 0.95);
-            backdrop-filter: blur(10px);
+        .site-header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid #f0e2d4;
-            padding: 1rem 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
         }
         .header-inner {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 1.5rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
-        .logo {
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #9b7b5c, #6b4e2e);
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e293b, #3b82f6);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: -0.5px;
         }
         .nav-links {
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             align-items: center;
             flex-wrap: wrap;
         }
+        .nav-links a {
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #3b82f6; }
         button {
-            background: #9b7b5c;
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 0.5rem 1.2rem;
             border-radius: 2rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            transition: 0.2s;
         }
-        button:hover {
-            background: #7c5f44;
-            transform: scale(1.02);
-        }
+        button:hover { background: #2563eb; transform: translateY(-1px); }
         .btn-outline {
             background: transparent;
-            border: 1px solid #9b7b5c;
-            color: #9b7b5c;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
         }
-        .btn-outline:hover {
-            background: #f1e8df;
-        }
-        .hidden {
-            display: none;
-        }
-        /* Article cards */
-        .articles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-        .article-card {
+        .btn-outline:hover { background: #eff6ff; }
+        .hidden { display: none; }
+
+        /* Current Issue */
+        .current-issue {
             background: white;
             border-radius: 1.5rem;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin: 2rem 0;
+        }
+        .issue-cover {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+        .issue-content {
+            padding: 2rem;
+        }
+        .issue-badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .issue-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+        @media (min-width: 768px) { .issue-title { font-size: 2rem; } }
+        .issue-meta { color: #64748b; margin-bottom: 1rem; }
+
+        /* Main container */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        @media (min-width: 992px) { .main-container { grid-template-columns: 2fr 1fr; } }
+
+        /* Article Grid */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .article-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             transition: all 0.3s ease;
             cursor: pointer;
-            border: 1px solid #efe3d6;
         }
-        .article-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-        .card-content {
-            padding: 1.5rem;
-        }
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #2c241a;
-        }
-        .card-meta {
-            font-size: 0.8rem;
-            color: #b29573;
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .card-image { width: 100%; height: 180px; object-fit: cover; }
+        @media (min-width: 768px) { .card-image { height: 200px; } }
+        .card-content { padding: 1rem; }
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.3; }
+        .card-meta { font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; }
         .card-tag {
-            background: #efe2d4;
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
             font-size: 0.7rem;
+            margin-right: 0.3rem;
+            color: #1e293b;
         }
-        .card-excerpt {
-            color: #5f5548;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        /* Article detail modal */
+        .weekly-schedule {
+            background: #f1f5f9;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .schedule-item {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .schedule-day {
+            width: 50px;
+            height: 50px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .creator-spot {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+            margin-top: 1rem;
+        }
+        .creator-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; }
+
+        /* Creators Section */
+        .creators-section {
+            background: #f1f5f9;
+            padding: 3rem 0;
+            margin: 3rem 0;
+        }
+        .creators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .creator-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .creator-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .creator-avatar-lg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; }
+
+        /* Footer */
+        .site-footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 3rem 0 2rem;
+            margin-top: 3rem;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        @media (min-width: 768px) { .footer-grid { grid-template-columns: repeat(3, 1fr); } }
+        .footer-grid h3 { color: white; margin-bottom: 1rem; }
+
+        /* Modals */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             visibility: hidden;
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: 0.2s;
         }
-        .modal.active {
-            visibility: visible;
-            opacity: 1;
-        }
+        .modal.active { visibility: visible; opacity: 1; }
         .modal-content {
             background: white;
             width: 90%;
-            max-width: 800px;
+            max-width: 700px;
             max-height: 85vh;
             overflow-y: auto;
-            border-radius: 2rem;
+            border-radius: 1.5rem;
             padding: 2rem;
             position: relative;
         }
@@ -176,166 +272,278 @@ ryHtml;
             right: 1.5rem;
             font-size: 1.8rem;
             cursor: pointer;
-            background: none;
-            color: #888;
+            color: #94a3b8;
         }
-        /* Forms */
-        .form-group {
-            margin-bottom: 1rem;
-        }
+        .form-group { margin-bottom: 1rem; }
         input, textarea, select {
             width: 100%;
             padding: 0.8rem 1rem;
-            border: 1px solid #e2d2c0;
-            border-radius: 1.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 1rem;
             font-size: 1rem;
-            background: #fffcf8;
-        }
-        .auth-card, .admin-card {
-            background: white;
-            border-radius: 2rem;
-            padding: 2rem;
-            margin: 2rem 0;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
         .flex-between {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
             gap: 1rem;
+            flex-wrap: wrap;
         }
-        .error-msg {
-            color: #c25d2e;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
+        .badge {
+            background: #f59e0b;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: bold;
         }
-        .success-msg {
-            color: #2c6e2c;
+        .error-msg { color: #ef4444; font-size: 0.85rem; margin-top: 0.3rem; }
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem 0;
         }
-        .recommend-section {
-            background: #fff9f2;
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            margin: 2rem 0;
+        .message {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 1rem;
         }
-        @media (max-width: 700px) {
-            .container { padding: 1rem; }
-            .articles-grid { grid-template-columns: 1fr; }
+        .message.sent {
+            background: #3b82f6;
+            color: white;
+            text-align: right;
+        }
+        .message.received {
+            background: #f1f5f9;
+        }
+        .contact-item {
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .contact-item:hover { background: #f1f5f9; }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .container { padding: 0 1rem; }
+            .header-inner { flex-direction: column; text-align: center; }
+            .nav-links { justify-content: center; }
+            .issue-content { padding: 1.5rem; }
+            .sidebar { margin-top: 1rem; }
+            .creators-grid { gap: 1rem; }
+            button { padding: 0.4rem 1rem; font-size: 0.9rem; }
+            .modal-content { padding: 1.5rem; }
         }
     </style>
 </head>
 <body>
-<header>
-    <div class="header-inner">
-        <div class="logo">📖 අපේ සඟරාව</div>
+
+<div class="site-header">
+    <div class="container header-inner">
+        <div class="logo"><h1>විද්‍යා චින්තන</h1></div>
         <div class="nav-links">
+            <a href="#" id="homeLink">මුල් පිටුව</a>
+            <a href="#" id="dashboardLink">මගේ අවකාශය</a>
+            <a href="#" id="submitLink" class="hidden">ලිපියක් එකතු කරන්න</a>
+            <a href="#" id="profileLink" class="hidden">මගේ පැතිකඩ</a>
+            <a href="#" id="messagesLink" class="hidden">පණිවුඩ</a>
+            <a href="#" id="adminLink" class="hidden">පරිපාලනය</a>
+            <a href="#" id="archiveLink">පැරණි කලාප</a>
             <span id="userStatus"></span>
             <button id="loginShowBtn">පිවිසෙන්න</button>
             <button id="logoutBtn" class="hidden">පිටවන්න</button>
         </div>
     </div>
-</header>
+</div>
 
-<div class="container">
-    <!-- Public articles grid -->
-    <div id="publicArticles"></div>
-
-    <!-- Auth Section (Login/Register) -->
-    <div id="authSection" class="auth-card hidden">
-        <div id="loginForm">
-            <h2>පිවිසුම</h2>
-            <div class="form-group"><input type="email" id="loginEmail" placeholder="විද්‍යුත් තැපෑල"></div>
-            <div class="form-group"><input type="password" id="loginPassword" placeholder="මුරපදය"></div>
-            <button id="loginBtn">පිවිසෙන්න</button>
-            <button id="showRegisterBtn" class="btn-outline">නව ගිණුමක්</button>
-            <div id="authError" class="error-msg"></div>
-        </div>
-        <div id="registerForm" class="hidden">
-            <h2>ලියාපදිංචිය</h2>
-            <div class="form-group"><input type="email" id="regEmail" placeholder="විද්‍යුත් තැපෑල"></div>
-            <div class="form-group"><input type="password" id="regPassword" placeholder="මුරපදය"></div>
-            <div class="form-group"><input type="password" id="regConfirm" placeholder="මුරපදය නැවත"></div>
-            <button id="registerBtn">ලියාපදිංචි වන්න</button>
-            <button id="showLoginBtn" class="btn-outline">ආපසු පිවිසුමට</button>
-            <div id="regError" class="error-msg"></div>
-        </div>
-    </div>
-
-    <!-- User Dashboard (Saved, History, Recommendations) -->
-    <div id="userDashboard" class="hidden">
-        <div class="flex-between">
-            <h2>👤 මගේ අවකාශය</h2>
-            <button id="closeDashboardBtn">වසන්න</button>
-        </div>
-        <div>
-            <h3>📌 සුරකින ලද ලිපි</h3>
-            <div id="savedList"></div>
-            <h3>📖 කියවූ ඉතිහාසය</h3>
-            <div id="historyList"></div>
-            <div id="recommendSection" class="recommend-section">
-                <h3>🤖 ඔබ උනන්දු විය හැකි ලිපි</h3>
-                <div id="recommendList"></div>
+<main class="container">
+    <div id="currentIssueContainer"></div>
+    <div class="main-container">
+        <div id="articlesContainer" class="articles-grid"></div>
+        <aside class="sidebar">
+            <div class="weekly-schedule">
+                <h3><i class="fas fa-calendar-alt"></i> සතිපතා කාලසටහන</h3>
+                <div class="schedule-item"><div class="schedule-day">සඳු</div><div><strong>භෞතික විද්‍යාව</strong><br>⚛️ නව ලිපිය</div></div>
+                <div class="schedule-item"><div class="schedule-day">බදා</div><div><strong>ජීව විද්‍යාව</strong><br>🧬 නව ලිපිය</div></div>
+                <div class="schedule-item"><div class="schedule-day">සිකු</div><div><strong>රසායනය</strong><br>🧪 නව ලිපිය</div></div>
             </div>
-        </div>
+            <div>
+                <h3><i class="fas fa-flask"></i> නිර්මාණකරුවෝ</h3>
+                <div class="creator-spot">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="creator-avatar">
+                    <div><strong>මහාචාර්ය අමිල ප්‍රනාන්දු</strong><br>භෞතික විද්‍යාඥ</div>
+                </div>
+            </div>
+        </aside>
     </div>
+</main>
 
-    <!-- Admin Panel -->
-    <div id="adminPanel" class="hidden">
-        <div class="flex-between">
-            <h2>🛠️ පරිපාලක පුවරුව</h2>
-            <button id="closeAdminBtn">වසන්න</button>
+<section class="creators-section">
+    <div class="container">
+        <h2 style="text-align:center; margin-bottom:1rem;"><i class="fas fa-atom"></i> අපගේ නිර්මාණකරුවෝ</h2>
+        <p style="text-align:center; margin-bottom:2rem;">විද්‍යාව දරුවන් වෙත ගෙන යන පුරෝගාමීන්</p>
+        <div class="creators-grid">
+            <div class="creator-card"><img src="https://randomuser.me/api/portraits/men/32.jpg" class="creator-avatar-lg"><h3>මහාචාර්ය අමිල ප්‍රනාන්දු</h3><p>⚛️ භෞතික විද්‍යාඥ</p></div>
+            <div class="creator-card"><img src="https://randomuser.me/api/portraits/women/44.jpg" class="creator-avatar-lg"><h3>මහාචාර්ය සචිනි විජේසූරිය</h3><p>🧬 ජීව විද්‍යාඥ</p></div>
+            <div class="creator-card"><img src="https://randomuser.me/api/portraits/men/75.jpg" class="creator-avatar-lg"><h3>මහාචාර්ය නුවන් ජයසිංහ</h3><p>🧪 රසායන විද්‍යාඥ</p></div>
+            <div class="creator-card"><img src="https://randomuser.me/api/portraits/women/68.jpg" class="creator-avatar-lg"><h3>මහාචාර්ය දිල්හානි පෙරේරා</h3><p>🌌 තාරකා විද්‍යාඥ</p></div>
         </div>
-        <div class="admin-card">
-            <h3>නව ලිපියක් එකතු කරන්න</h3>
-            <div class="form-group"><input type="text" id="articleTitle" placeholder="සිරස්තලය"></div>
-            <div class="form-group"><textarea id="articleContent" rows="6" placeholder="අන්තර්ගතය (Markdown)"></textarea></div>
-            <div class="form-group"><input type="text" id="articleTags" placeholder="ටැග්ස් (කොමාවෙන් වෙන් කරන්න)"></div>
-            <div class="form-group"><input type="text" id="articleCategory" placeholder="ප්‍රවර්ගය"></div>
-            <button id="addArticleBtn">ලිපිය ප්‍රකාශයට පත් කරන්න</button>
-        </div>
-        <div id="adminArticlesList"></div>
     </div>
-</div>
+</section>
 
-<!-- Article modal -->
-<div id="articleModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <div id="modalArticleContent"></div>
-        <div id="modalActions" class="flex-between" style="margin-top: 1rem;"></div>
+<footer class="site-footer">
+    <div class="container footer-grid">
+        <div><h3>අපි ගැන</h3><p>"විද්‍යා චින්තන" - ශ්‍රී ලංකාවේ ළමුන් සඳහා නව විද්‍යාත්මක චින්තනයක් ගොඩනැගීමේ අරමුණින් නිර්මාණය කළ සතිපතා විද්‍යා සඟරාව.</p></div>
+        <div><h3>විද්‍යා සබැඳි</h3><ul style="list-style:none;"><li>⚛️ ක්වොන්ටම් භෞතිකය</li><li>🧬 අණුක ජීව විද්‍යාව</li><li>🧪 රසායන ප්‍රතික්‍රියා</li></ul></div>
+        <div><h3>සම්බන්ධ වන්න</h3><p>📧 info@vidyachinthana.lk</p><p>📞 +94 11 234 5678</p><p>📍 කොළඹ, ශ්‍රී ලංකාව</p></div>
     </div>
-</div>
+    <div style="text-align:center; margin-top:2rem; border-top:1px solid #334155; padding-top:2rem;"><p>© 2026 විද්‍යා චින්තන - සියලුම හිමිකම් ඇවිරිණි | විද්‍යාවේ අනන්තය සොයා</p></div>
+</footer>
+
+<!-- Modals (same structure, but with admin conversations section added) -->
+<div id="authModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span>
+    <div id="loginForm"><h2>පිවිසුම</h2><div class="form-group"><input type="email" id="loginEmail" placeholder="විද්‍යුත් තැපෑල"></div><div class="form-group"><input type="password" id="loginPassword" placeholder="මුරපදය"></div><button id="loginBtn">පිවිසෙන්න</button><button id="showRegisterBtn" class="btn-outline">නව ගිණුමක්</button><div id="authError" class="error-msg"></div></div>
+    <div id="registerForm" class="hidden"><h2>ලියාපදිංචිය</h2><div class="form-group"><input type="email" id="regEmail" placeholder="විද්‍යුත් තැපෑල"></div><div class="form-group"><input type="password" id="regPassword" placeholder="මුරපදය"></div><div class="form-group"><input type="password" id="regConfirm" placeholder="මුරපදය නැවත"></div><button id="registerBtn">ලියාපදිංචි වන්න</button><button id="showLoginBtn" class="btn-outline">ආපසු පිවිසුමට</button><div id="regError" class="error-msg"></div></div>
+</div></div>
+
+<div id="userDashboardModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>👤 මගේ අවකාශය</h2><div id="userBadge"></div><h3>📌 සුරකින ලද ලිපි</h3><div id="savedList"></div><h3>📖 කියවූ ඉතිහාසය</h3><div id="historyList"></div><h3>🤖 ඔබ උනන්දු විය හැකි ලිපි</h3><div id="recommendList"></div></div></div>
+
+<div id="profileModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📋 මගේ පැතිකඩ</h2>
+    <div class="form-group"><input type="text" id="profileFullName" placeholder="සම්පූර්ණ නම"></div>
+    <div class="form-group"><input type="text" id="profileAddress" placeholder="ලිපිනය"></div>
+    <div class="form-group"><input type="text" id="profilePhone" placeholder="දුරකථන අංකය"></div>
+    <div class="form-group"><input type="text" id="profileWhatsapp" placeholder="වොට්ස්ඇප් අංකය"></div>
+    <div class="form-group"><input type="text" id="profileJobSchool" placeholder="රැකියාව / පාසල"></div>
+    <div class="form-group"><input type="text" id="profileCodification" placeholder="කේතීකරණ අංකය"></div>
+    <div class="form-group"><textarea id="profileOther" rows="3" placeholder="අමතර විස්තර"></textarea></div>
+    <button id="saveProfileBtn">සුරකින්න</button>
+    <div id="profileError" class="error-msg"></div>
+</div></div>
+
+<div id="submitModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>📝 නව ලිපියක් එකතු කරන්න</h2>
+    <div class="form-group"><input type="text" id="submitTitle" placeholder="සිරස්තලය *"></div>
+    <div class="form-group"><textarea id="submitContent" rows="8" placeholder="අන්තර්ගතය (Markdown) *"></textarea></div>
+    <div class="form-group"><input type="text" id="submitTags" placeholder="ටැග්ස් (කොමාවෙන් වෙන් කරන්න)"></div>
+    <div class="form-group"><input type="text" id="submitCategory" placeholder="ප්‍රවර්ගය (උදා: භෞතික විද්‍යාව)"></div>
+    <div class="form-group"><input type="text" id="submitIssue" placeholder="කලාප අංකය (උදා: 2026-03-21) *"></div>
+    <div class="form-group"><label>පින්තූරය (Google Drive link හෝ upload)</label><input type="text" id="submitImageUrl" placeholder="Google Drive shared link"></div>
+    <div class="form-group"><input type="file" id="submitImageUpload" accept="image/*"></div>
+    <div id="submitImagePreview" style="margin-bottom:1rem;"></div>
+    <button id="submitArticleBtn">ලිපිය ඉදිරිපත් කරන්න</button>
+    <div id="submitError" class="error-msg"></div>
+</div></div>
+
+<div id="messagesModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>💬 පණිවුඩ</h2>
+    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:1rem;">
+        <div id="contactList" style="border-right:1px solid #e2e8f0;"></div>
+        <div>
+            <div id="chatHeader"></div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="flex-between"><input type="text" id="chatInput" placeholder="පණිවුඩය ලියන්න..." style="flex:1;"><button id="sendMessageBtn">යවන්න</button></div>
+        </div>
+    </div>
+</div></div>
+
+<div id="adminModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>🛠️ පරිපාලක පුවරුව</h2>
+    <div id="adminVerifySection"><p>Admin access සඳහා verification code එක ඇතුලත් කරන්න:</p><div class="form-group"><input type="text" id="adminCode" placeholder="Verification Code"></div><button id="verifyAdminBtn">තහවුරු කරන්න</button><div id="adminVerifyError" class="error-msg"></div></div>
+    <div id="adminPanelContent" class="hidden">
+        <h3>📝 අනුමත කිරීමට බලා සිටින ලිපි</h3><div id="pendingArticlesList"></div>
+        <hr><h3>නව ලිපියක් එකතු කරන්න (admin)</h3>
+        <div class="form-group"><input type="text" id="articleTitle" placeholder="සිරස්තලය"></div>
+        <div class="form-group"><textarea id="articleContent" rows="6" placeholder="අන්තර්ගතය (Markdown)"></textarea></div>
+        <div class="form-group"><input type="text" id="articleTags" placeholder="ටැග්ස් (කොමාවෙන්)"></div>
+        <div class="form-group"><input type="text" id="articleCategory" placeholder="ප්‍රවර්ගය"></div>
+        <div class="form-group"><input type="text" id="articleImage" placeholder="පින්තූර URL"></div>
+        <div class="form-group"><input type="text" id="issueNumber" placeholder="කලාප අංකය (උදා: 2026-03-21)"></div>
+        <button id="addArticleBtn">ලිපිය ප්‍රකාශයට පත් කරන්න</button>
+        <hr><h3>Top Fans Badge අනුමත කරන්න</h3><div id="pendingUsersList"></div>
+        <hr><h3>Admin Login Logs</h3><div id="adminLogsList"></div>
+        <hr><h3>Guest IP Logs</h3><div id="guestLogsList"></div>
+        <hr><h3>Articles Management</h3><div id="adminArticlesList"></div>
+        <hr><h3>🔐 All Conversations (Decrypted)</h3>
+        <div id="adminConversationsList"></div>
+    </div>
+</div></div>
+
+<div id="articleModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modalArticleContent"></div><div id="modalActions" style="margin-top:1rem;"></div><div id="similarArticles" style="margin-top:2rem; border-top:1px solid #e2e8f0; padding-top:1rem;"><h3>📚 සමාන ලිපි</h3><div id="similarList"></div></div></div></div>
+<div id="archiveModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>පැරණි කලාප</h2><div id="archiveList"></div></div></div>
 
 <script>
     // ==================== 🔧 TODO: ඔබගේ Firebase Config එක මෙහි අලවන්න ====================
     const firebaseConfig = {
-  apiKey: "AIzaSyAXGfmIU4MgHv5BeiI6_x7FTaXjHMwoQ5k",
-  authDomain: "vidyachinthana-61d94.firebaseapp.com",
-  projectId: "vidyachinthana-61d94",
-  storageBucket: "vidyachinthana-61d94.firebasestorage.app",
-  messagingSenderId: "763776055414",
-  appId: "1:763776055414:web:4b9ed6eefb1cd00616c757"
-};
-    // =======================================================================
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+    // ================================================================================
+    const ADMIN_SECRET_CODE = "vidyachinthana2026";
+
+    // ========== ENCRYPTION KEY (change to a strong random base64 string) ==========
+    // Generate with: crypto.getRandomValues(new Uint8Array(32)) then base64 encode.
+    // Keep this secret. Editors and admins must know it.
+    const ENCRYPTION_KEY_BASE64 = "YOUR_BASE64_ENCRYPTION_KEY_HERE"; // Replace with a strong key
+    // ================================================================================
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
-    // Global state
     let currentUser = null;
     let currentUserDoc = null;
-    let allArticles = []; // cache for recommendations
+    let isAdmin = false;
+    let isEditor = false;
+    let allArticles = [];
 
-    // DOM elements
-    const publicDiv = document.getElementById('publicArticles');
-    const authSection = document.getElementById('authSection');
-    const userDashboard = document.getElementById('userDashboard');
-    const adminPanel = document.getElementById('adminPanel');
-    const userStatusSpan = document.getElementById('userStatus');
-    const loginShowBtn = document.getElementById('loginShowBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    // ---------- Encryption helper functions ----------
+    let encryptionKey = null;
+
+    async function getEncryptionKey() {
+        if (encryptionKey) return encryptionKey;
+        const keyMaterial = await window.crypto.subtle.importKey(
+            "raw",
+            Uint8Array.from(atob(ENCRYPTION_KEY_BASE64), c => c.charCodeAt(0)),
+            "AES-GCM",
+            true,
+            ["encrypt", "decrypt"]
+        );
+        encryptionKey = keyMaterial;
+        return encryptionKey;
+    }
+
+    async function encryptMessage(text) {
+        const key = await getEncryptionKey();
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const encodedText = new TextEncoder().encode(text);
+        const encrypted = await window.crypto.subtle.encrypt(
+            { name: "AES-GCM", iv: iv },
+            key,
+            encodedText
+        );
+        return {
+            iv: Array.from(iv),
+            data: Array.from(new Uint8Array(encrypted))
+        };
+    }
+
+    async function decryptMessage(encryptedObj) {
+        const key = await getEncryptionKey();
+        const iv = new Uint8Array(encryptedObj.iv);
+        const data = new Uint8Array(encryptedObj.data);
+        const decrypted = await window.crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: iv },
+            key,
+            data
+        );
+        return new TextDecoder().decode(decrypted);
+    }
 
     // Helper: escape HTML
     function escapeHtml(str) {
@@ -348,61 +556,121 @@ ryHtml;
         });
     }
 
-    // Load all articles (public)
-    async function loadPublicArticles() {
+    // ---------- AI Similarity ----------
+    function getWordSet(text) {
+        const words = text.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !['this','that','have','from','with','what','when','where','which','will','can','the','and','for','are','was','were','but','not','you','your','our','their','there','here'].includes(w));
+        return new Set(words);
+    }
+    function jaccardSimilarity(setA, setB) {
+        const intersection = new Set([...setA].filter(x => setB.has(x)));
+        const union = new Set([...setA, ...setB]);
+        return intersection.size / union.size;
+    }
+    function getSimilarArticles(currentArticle, allArticles, limit = 3) {
+        const currentText = (currentArticle.title + ' ' + currentArticle.content).toLowerCase();
+        const currentSet = getWordSet(currentText);
+        const scored = allArticles.filter(a => a.id !== currentArticle.id && a.status === 'published').map(art => {
+            const artText = (art.title + ' ' + art.content).toLowerCase();
+            const artSet = getWordSet(artText);
+            const score = jaccardSimilarity(currentSet, artSet);
+            return { art, score };
+        });
+        scored.sort((a,b) => b.score - a.score);
+        return scored.slice(0, limit).map(s => s.art);
+    }
+
+    // ---------- Load published articles and current issue ----------
+    async function loadArticles() {
         const snapshot = await db.collection('articles').where('status', '==', 'published').orderBy('publishedAt', 'desc').get();
         allArticles = [];
-        let html = '<div class="articles-grid">';
+        let articlesHtml = '';
         snapshot.forEach(doc => {
             const art = doc.data();
             art.id = doc.id;
             allArticles.push(art);
-            const excerpt = art.content ? art.content.substring(0, 120) + '...' : '';
             const tagsHtml = (art.tags || []).map(t => `<span class="card-tag">#${escapeHtml(t)}</span>`).join('');
-            html += `
+            articlesHtml += `
                 <div class="article-card" data-id="${doc.id}">
+                    <img src="${art.imageUrl || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600'}" class="card-image">
                     <div class="card-content">
                         <div class="card-title">${escapeHtml(art.title)}</div>
-                        <div class="card-meta">
-                            <span>📅 ${art.publishedAt ? new Date(art.publishedAt.toDate()).toLocaleDateString('si-LK') : ''}</span>
-                            <span>✍️ ${escapeHtml(art.authorName || 'කතෘ')}</span>
-                            ${tagsHtml}
-                        </div>
-                        <div class="card-excerpt">${escapeHtml(excerpt)}</div>
+                        <div class="card-meta">📅 ${art.publishedAt ? new Date(art.publishedAt.toDate()).toLocaleDateString('si-LK') : ''} | ✍️ ${escapeHtml(art.authorName)}</div>
+                        <div>${tagsHtml}</div>
                     </div>
                 </div>
             `;
         });
-        html += '</div>';
-        publicDiv.innerHTML = html;
-
-        // Add click listeners for each card
+        document.getElementById('articlesContainer').innerHTML = articlesHtml;
         document.querySelectorAll('.article-card').forEach(card => {
-            card.addEventListener('click', (e) => {
+            card.addEventListener('click', () => {
                 const id = card.getAttribute('data-id');
-                const article = allArticles.find(a => a.id === id);
-                if (article) openArticleModal(article);
+                const art = allArticles.find(a => a.id === id);
+                if (art) openArticleModal(art);
             });
         });
+
+        // Current issue grouping
+        const issueGroups = {};
+        allArticles.forEach(art => {
+            if (art.issueNumber) {
+                if (!issueGroups[art.issueNumber]) issueGroups[art.issueNumber] = [];
+                issueGroups[art.issueNumber].push(art);
+            }
+        });
+        const sortedIssues = Object.keys(issueGroups).sort().reverse();
+        if (sortedIssues.length > 0) {
+            const latestIssue = sortedIssues[0];
+            const articlesInIssue = issueGroups[latestIssue];
+            articlesInIssue.sort((a,b) => (b.publishedAt?.toDate() || 0) - (a.publishedAt?.toDate() || 0));
+            const coverImage = articlesInIssue[0]?.imageUrl || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800';
+            let issueHtml = `
+                <div class="current-issue">
+                    <img src="${coverImage}" class="issue-cover">
+                    <div class="issue-content">
+                        <span class="issue-badge">මේ සතියේ කලාපය</span>
+                        <div class="issue-title">${escapeHtml(latestIssue)} කලාපය</div>
+                        <div class="issue-meta">ලිපි ${articlesInIssue.length}ක්</div>
+                        <div class="articles-grid" style="margin-top:1.5rem;">
+            `;
+            articlesInIssue.forEach(art => {
+                issueHtml += `
+                    <div class="article-card" data-id="${art.id}">
+                        <img src="${art.imageUrl || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300'}" class="card-image" style="height:150px;">
+                        <div class="card-content">
+                            <div class="card-title">${escapeHtml(art.title)}</div>
+                            <div class="card-meta">${escapeHtml(art.authorName)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            issueHtml += `</div></div></div>`;
+            document.getElementById('currentIssueContainer').innerHTML = issueHtml;
+            document.querySelectorAll('#currentIssueContainer .article-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.getAttribute('data-id');
+                    const art = allArticles.find(a => a.id === id);
+                    if (art) openArticleModal(art);
+                });
+            });
+        } else {
+            document.getElementById('currentIssueContainer').innerHTML = '';
+        }
     }
 
-    // Open modal with full article
     async function openArticleModal(article) {
-        const modal = document.getElementById('articleModal');
-        const contentDiv = document.getElementById('modalArticleContent');
+        const modalContent = document.getElementById('modalArticleContent');
         const actionsDiv = document.getElementById('modalActions');
         const markedHtml = marked.parse(article.content || '');
-        contentDiv.innerHTML = `
+        modalContent.innerHTML = `
             <h2>${escapeHtml(article.title)}</h2>
-            <div class="entry-meta" style="margin-bottom:1rem; color:#b29573;">
-                ${article.publishedAt ? new Date(article.publishedAt.toDate()).toLocaleDateString('si-LK') : ''} | ${escapeHtml(article.authorName || 'කතෘ')}
-                ${(article.tags || []).map(t => `<span class="card-tag" style="background:#efe2d4;">#${escapeHtml(t)}</span>`).join('')}
+            <div style="margin-bottom:1rem; color:#64748b;">
+                ${article.publishedAt ? new Date(article.publishedAt.toDate()).toLocaleDateString('si-LK') : ''} | ${escapeHtml(article.authorName)}
+                ${(article.tags || []).map(t => `<span style="background:#e2e8f0; padding:0.2rem 0.7rem; border-radius:20px; margin-left:0.5rem;">#${escapeHtml(t)}</span>`).join('')}
             </div>
             <div>${markedHtml}</div>
         `;
         actionsDiv.innerHTML = '';
         if (currentUser) {
-            // Check if saved
             const savedRef = db.collection('users').doc(currentUser.uid).collection('saved').doc(article.id);
             const savedDoc = await savedRef.get();
             const isSaved = savedDoc.exists;
@@ -416,72 +684,98 @@ ryHtml;
                     await savedRef.set({ articleId: article.id, savedAt: firebase.firestore.FieldValue.serverTimestamp() });
                     saveBtn.textContent = 'සුරකින ලදි';
                 }
-                // Also record view in history
-                const historyRef = db.collection('users').doc(currentUser.uid).collection('history').doc(article.id);
-                await historyRef.set({ articleId: article.id, viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                // Update recommendations after interaction
+                await recordHistory(article.id);
                 updateRecommendations();
             };
             actionsDiv.appendChild(saveBtn);
         }
-        // Record view in history (if logged in)
-        if (currentUser) {
-            const historyRef = db.collection('users').doc(currentUser.uid).collection('history').doc(article.id);
-            await historyRef.set({ articleId: article.id, viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            updateRecommendations();
+        await recordHistory(article.id);
+        if (currentUser) updateRecommendations();
+
+        // AI Similar articles
+        const similar = getSimilarArticles(article, allArticles);
+        const similarDiv = document.getElementById('similarList');
+        if (similar.length === 0) {
+            similarDiv.innerHTML = '<p>සමාන ලිපි හමු නොවුණි.</p>';
+        } else {
+            let simHtml = '<div class="articles-grid" style="grid-template-columns:repeat(auto-fill, minmax(200px,1fr));">';
+            similar.forEach(art => {
+                simHtml += `
+                    <div class="article-card" data-id="${art.id}">
+                        <img src="${art.imageUrl || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300'}" class="card-image" style="height:120px;">
+                        <div class="card-content"><div class="card-title">${escapeHtml(art.title)}</div></div>
+                    </div>
+                `;
+            });
+            simHtml += '</div>';
+            similarDiv.innerHTML = simHtml;
+            document.querySelectorAll('#similarList .article-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = card.getAttribute('data-id');
+                    const art = allArticles.find(a => a.id === id);
+                    if (art) openArticleModal(art);
+                });
+            });
         }
-        modal.classList.add('active');
+
+        document.getElementById('articleModal').classList.add('active');
     }
 
-    // Update recommendations based on user's history/saved tags
+    async function recordHistory(articleId) {
+        if (currentUser) {
+            const historyRef = db.collection('users').doc(currentUser.uid).collection('history').doc(articleId);
+            await historyRef.set({ articleId, viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+            let ip = localStorage.getItem('visitor_ip');
+            if (!ip) {
+                try {
+                    const res = await fetch('https://ipapi.co/json/');
+                    const data = await res.json();
+                    ip = data.ip;
+                    localStorage.setItem('visitor_ip', ip);
+                    await db.collection('guests').doc(ip).set({
+                        ip, country: data.country_name, city: data.city,
+                        firstSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch(e) { console.warn(e); }
+            }
+            const guestHistoryRef = db.collection('guests').doc(ip).collection('history').doc(articleId);
+            await guestHistoryRef.set({ articleId, viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+    }
+
     async function updateRecommendations() {
         if (!currentUser) return;
-        // Get user's history & saved articles to collect tags
         const historySnap = await db.collection('users').doc(currentUser.uid).collection('history').get();
         const savedSnap = await db.collection('users').doc(currentUser.uid).collection('saved').get();
         const interactedIds = new Set();
-        historySnap.forEach(doc => interactedIds.add(doc.id));
-        savedSnap.forEach(doc => interactedIds.add(doc.id));
-
-        // Fetch all articles to get tags
+        historySnap.forEach(d => interactedIds.add(d.id));
+        savedSnap.forEach(d => interactedIds.add(d.id));
         const allArts = allArticles.filter(a => a.status === 'published');
         const tagFrequency = {};
         for (let art of allArts) {
             if (interactedIds.has(art.id)) {
-                (art.tags || []).forEach(tag => {
-                    tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
-                });
+                (art.tags || []).forEach(tag => tagFrequency[tag] = (tagFrequency[tag] || 0) + 1);
             }
         }
-        // Score articles based on tag overlap
         const scored = allArts.map(art => {
-            if (interactedIds.has(art.id)) return { art, score: -1 }; // already interacted
+            if (interactedIds.has(art.id)) return { art, score: -1 };
             let score = 0;
-            (art.tags || []).forEach(tag => {
-                score += tagFrequency[tag] || 0;
-            });
+            (art.tags || []).forEach(tag => score += tagFrequency[tag] || 0);
             return { art, score };
         });
-        const topRecommendations = scored.filter(s => s.score > 0).sort((a,b) => b.score - a.score).slice(0, 5);
+        const top = scored.filter(s => s.score > 0).sort((a,b)=>b.score-a.score).slice(0,5);
         const recDiv = document.getElementById('recommendList');
-        if (topRecommendations.length === 0) {
+        if (top.length === 0) {
             recDiv.innerHTML = '<p>තවම නිර්දේශ සඳහා ප්‍රමාණවත් දත්ත නැත. ලිපි කියවන්න, සුරකින්න.</p>';
             return;
         }
-        let html = '<div class="articles-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px,1fr));">';
-        topRecommendations.forEach(({art}) => {
-            html += `
-                <div class="article-card" data-id="${art.id}" style="cursor:pointer;">
-                    <div class="card-content">
-                        <div class="card-title">${escapeHtml(art.title)}</div>
-                        <div class="card-meta">${(art.tags || []).slice(0,2).map(t=>`#${escapeHtml(t)}`).join(' ')}</div>
-                    </div>
-                </div>
-            `;
+        let html = '<div style="display:grid; gap:1rem;">';
+        top.forEach(({art}) => {
+            html += `<div class="article-card" data-id="${art.id}" style="cursor:pointer;"><div class="card-content"><div class="card-title">${escapeHtml(art.title)}</div></div></div>`;
         });
         html += '</div>';
         recDiv.innerHTML = html;
-        // attach click handlers
         document.querySelectorAll('#recommendList .article-card').forEach(card => {
             card.addEventListener('click', () => {
                 const id = card.getAttribute('data-id');
@@ -491,31 +785,468 @@ ryHtml;
         });
     }
 
-    // Load user dashboard (saved & history)
     async function loadUserDashboard() {
         if (!currentUser) return;
-        // saved
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const hasBadge = userDoc.data()?.topFanBadge === true;
+        document.getElementById('userBadge').innerHTML = hasBadge ? '<span class="badge">🏆 Top Fan</span>' : '';
         const savedSnap = await db.collection('users').doc(currentUser.uid).collection('saved').get();
         let savedHtml = '';
         for (const doc of savedSnap.docs) {
-            const artId = doc.id;
-            const article = allArticles.find(a => a.id === artId);
-            if (article) {
-                savedHtml += `<div class="article-card" data-id="${artId}" style="margin-bottom:0.5rem; padding:0.5rem;">${escapeHtml(article.title)}</div>`;
-            }
+            const art = allArticles.find(a => a.id === doc.id);
+            if (art) savedHtml += `<div class="article-card" data-id="${doc.id}" style="margin-bottom:0.5rem;"><div class="card-content"><div class="card-title">${escapeHtml(art.title)}</div></div></div>`;
         }
-        if (!savedHtml) savedHtml = '<p>සුරකින ලද ලිපි නැත.</p>';
-        document.getElementById('savedList').innerHTML = savedHtml;
-        // history
+        document.getElementById('savedList').innerHTML = savedHtml || '<p>සුරකින ලද ලිපි නැත.</p>';
         const historySnap = await db.collection('users').doc(currentUser.uid).collection('history').orderBy('viewedAt', 'desc').limit(10).get();
         let historyHtml = '';
         for (const doc of historySnap.docs) {
-            const artId = doc.id;
-            const article = allArticles.find(a => a.id === artId);
-            if (article) {
-                historyHtml += `<div class="article-card" data-id="${artId}" style="margin-bottom:0.5rem; padding:0.5rem;">${escapeHtml(article.title)}</div>`;
-            }
+            const art = allArticles.find(a => a.id === doc.id);
+            if (art) historyHtml += `<div class="article-card" data-id="${doc.id}" style="margin-bottom:0.5rem;"><div class="card-content"><div class="card-title">${escapeHtml(art.title)}</div></div></div>`;
         }
-        if (!historyHtml) historyHtml = '<p>කියවූ ඉතිහාසය නැත.</p>';
-        document.getElementById('historyList').innerHTML = historyHtml;
-                
+        document.getElementById('historyList').innerHTML = historyHtml || '<p>කියවූ ඉතිහාසය නැත.</p>';
+        document.querySelectorAll('#savedList .article-card, #historyList .article-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.getAttribute('data-id');
+                const art = allArticles.find(a => a.id === id);
+                if (art) openArticleModal(art);
+            });
+        });
+        await updateRecommendations();
+    }
+
+    // ---------- Profile functions ----------
+    async function loadProfile() {
+        if (!currentUser) return;
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const data = userDoc.data() || {};
+        document.getElementById('profileFullName').value = data.fullName || '';
+        document.getElementById('profileAddress').value = data.address || '';
+        document.getElementById('profilePhone').value = data.phone || '';
+        document.getElementById('profileWhatsapp').value = data.whatsapp || '';
+        document.getElementById('profileJobSchool').value = data.jobSchool || '';
+        document.getElementById('profileCodification').value = data.codification || '';
+        document.getElementById('profileOther').value = data.other || '';
+    }
+    async function saveProfile() {
+        if (!currentUser) return;
+        const profileData = {
+            fullName: document.getElementById('profileFullName').value.trim(),
+            address: document.getElementById('profileAddress').value.trim(),
+            phone: document.getElementById('profilePhone').value.trim(),
+            whatsapp: document.getElementById('profileWhatsapp').value.trim(),
+            jobSchool: document.getElementById('profileJobSchool').value.trim(),
+            codification: document.getElementById('profileCodification').value.trim(),
+            other: document.getElementById('profileOther').value.trim()
+        };
+        await db.collection('users').doc(currentUser.uid).set(profileData, { merge: true });
+        alert('පැතිකඩ සුරකින ලදි.');
+        document.getElementById('profileModal').classList.remove('active');
+    }
+
+    // ---------- Messaging with encryption ----------
+    let currentChatPartner = null;
+    let messagesUnsub = null;
+    async function loadContacts() {
+        if (!currentUser) return;
+        const usersSnap = await db.collection('users').where('role', 'in', ['editor', 'admin']).get();
+        let contactsHtml = '';
+        usersSnap.forEach(doc => {
+            if (doc.id !== currentUser.uid) {
+                const user = doc.data();
+                const name = user.fullName || user.email;
+                contactsHtml += `<div class="contact-item" data-uid="${doc.id}">${escapeHtml(name)}</div>`;
+            }
+        });
+        document.getElementById('contactList').innerHTML = contactsHtml;
+        document.querySelectorAll('.contact-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const uid = el.getAttribute('data-uid');
+                startChat(uid);
+            });
+        });
+    }
+    async function startChat(otherUserId) {
+        if (messagesUnsub) messagesUnsub();
+        currentChatPartner = otherUserId;
+        const otherUserDoc = await db.collection('users').doc(otherUserId).get();
+        const otherName = otherUserDoc.data()?.fullName || otherUserDoc.data()?.email || 'Unknown';
+        document.getElementById('chatHeader').innerHTML = `<strong>${escapeHtml(otherName)}</strong>`;
+        const conversationId = [currentUser.uid, otherUserId].sort().join('_');
+        const messagesRef = db.collection('conversations').doc(conversationId).collection('messages').orderBy('timestamp', 'asc');
+        messagesUnsub = messagesRef.onSnapshot(async snapshot => {
+            let msgsHtml = '';
+            for (const doc of snapshot.docs) {
+                const msg = doc.data();
+                const isSent = msg.senderId === currentUser.uid;
+                let text = '🔒 [Encrypted]';
+                try {
+                    text = await decryptMessage(msg.encrypted);
+                } catch (e) {
+                    console.error('Decryption failed', e);
+                }
+                msgsHtml += `<div class="message ${isSent ? 'sent' : 'received'}"><strong>${isSent ? 'මම' : escapeHtml(msg.senderName)}:</strong> ${escapeHtml(text)}<br><small>${msg.timestamp?.toDate().toLocaleTimeString()}</small></div>`;
+            }
+            document.getElementById('chatMessages').innerHTML = msgsHtml;
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        });
+    }
+    async function sendMessage() {
+        const text = document.getElementById('chatInput').value.trim();
+        if (!text || !currentChatPartner) return;
+        const encrypted = await encryptMessage(text);
+        const conversationId = [currentUser.uid, currentChatPartner].sort().join('_');
+        const senderName = currentUserDoc?.fullName || currentUser.email;
+        await db.collection('conversations').doc(conversationId).collection('messages').add({
+            senderId: currentUser.uid,
+            senderName: senderName,
+            encrypted: encrypted,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('chatInput').value = '';
+    }
+
+    // Admin: view all conversations decrypted
+    async function loadAllConversations() {
+        const convSnap = await db.collection('conversations').get();
+        let html = '';
+        for (const convDoc of convSnap.docs) {
+            const participants = convDoc.id.split('_');
+            const user1 = await db.collection('users').doc(participants[0]).get();
+            const user2 = await db.collection('users').doc(participants[1]).get();
+            const name1 = user1.data()?.fullName || user1.data()?.email || participants[0];
+            const name2 = user2.data()?.fullName || user2.data()?.email || participants[1];
+            html += `<div style="margin-bottom:1.5rem; border:1px solid #e2e8f0; border-radius:1rem; padding:1rem;">
+                        <strong>${escapeHtml(name1)} ↔ ${escapeHtml(name2)}</strong><br>
+                        <div style="max-height:200px; overflow-y:auto;">`;
+            const msgsSnap = await convDoc.ref.collection('messages').orderBy('timestamp', 'asc').get();
+            for (const msgDoc of msgsSnap.docs) {
+                const msg = msgDoc.data();
+                let text = '🔒 [Encrypted]';
+                try {
+                    text = await decryptMessage(msg.encrypted);
+                } catch(e) {}
+                html += `<div><small>${msg.timestamp?.toDate().toLocaleString()}</small> <strong>${escapeHtml(msg.senderName)}:</strong> ${escapeHtml(text)}</div>`;
+            }
+            html += `</div></div>`;
+        }
+        if (!html) html = '<p>කිසිදු සංවාදයක් නැත.</p>';
+        document.getElementById('adminConversationsList').innerHTML = html;
+    }
+
+    // ---------- Editor submission ----------
+    async function submitArticle() {
+        const title = document.getElementById('submitTitle').value.trim();
+        const content = document.getElementById('submitContent').value.trim();
+        const tagsRaw = document.getElementById('submitTags').value.trim();
+        const category = document.getElementById('submitCategory').value.trim();
+        const issue = document.getElementById('submitIssue').value.trim();
+        const imageUrl = document.getElementById('submitImageUrl').value.trim();
+        const fileInput = document.getElementById('submitImageUpload');
+        if (!title || !content || !issue) {
+            document.getElementById('submitError').innerText = 'සිරස්තලය, අන්තර්ගතය සහ කලාප අංකය අනිවාර්යයි.';
+            return;
+        }
+        const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(t=>t) : [];
+        let finalImageUrl = imageUrl;
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const storageRef = storage.ref().child(`article_images/${Date.now()}_${file.name}`);
+            const uploadTask = await storageRef.put(file);
+            finalImageUrl = await uploadTask.ref.getDownloadURL();
+        }
+        if (finalImageUrl && finalImageUrl.includes('drive.google.com')) {
+            const match = finalImageUrl.match(/\/d\/(.+?)\//);
+            if (match) finalImageUrl = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+        }
+        const articleData = {
+            title, content, tags, category, issueNumber: issue,
+            imageUrl: finalImageUrl || null,
+            authorId: currentUser.uid,
+            authorName: currentUserDoc?.fullName || currentUser.email,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await db.collection('articles').add(articleData);
+        alert('ඔබගේ ලිපිය සාර්ථකව ඉදිරිපත් කරන ලදි. ප්‍රකාශනයට පෙර එය අනුමත කිරීමට බලා සිටින්න.');
+        document.getElementById('submitModal').classList.remove('active');
+        document.getElementById('submitTitle').value = '';
+        document.getElementById('submitContent').value = '';
+        document.getElementById('submitTags').value = '';
+        document.getElementById('submitCategory').value = '';
+        document.getElementById('submitIssue').value = '';
+        document.getElementById('submitImageUrl').value = '';
+        document.getElementById('submitImageUpload').value = '';
+        document.getElementById('submitImagePreview').innerHTML = '';
+    }
+    document.getElementById('submitImageUpload')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('submitImagePreview').innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:150px; border-radius:1rem;">`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById('submitImagePreview').innerHTML = '';
+        }
+    });
+
+    // ---------- Admin functions ----------
+    async function loadPendingArticles() {
+        const snapshot = await db.collection('articles').where('status', '==', 'pending').orderBy('submittedAt', 'desc').get();
+        let html = '';
+        for (const doc of snapshot.docs) {
+            const art = doc.data();
+            html += `<div class="article-card" style="margin-bottom:1rem;"><div class="card-content"><div class="card-title">${escapeHtml(art.title)}</div><div class="card-meta">Submitted by: ${escapeHtml(art.authorName)} | Issue: ${escapeHtml(art.issueNumber)}</div><div class="flex-between"><button class="approve-article" data-id="${doc.id}" style="background:#10b981;">අනුමත කරන්න</button><button class="reject-article" data-id="${doc.id}" style="background:#ef4444;">ප්‍රතික්ෂේප කරන්න</button></div></div></div>`;
+        }
+        if (!html) html = '<p>අනුමත කිරීමට බලා සිටින ලිපි නැත.</p>';
+        document.getElementById('pendingArticlesList').innerHTML = html;
+        document.querySelectorAll('.approve-article').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.getAttribute('data-id');
+                await db.collection('articles').doc(id).update({ status: 'published', publishedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                loadPendingArticles();
+                loadArticles();
+                loadAdminArticles();
+            });
+        });
+        document.querySelectorAll('.reject-article').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.getAttribute('data-id');
+                if (confirm('මෙම ලිපිය ස්ථිරවම ප්‍රතික්ෂේප කරනවාද?')) {
+                    await db.collection('articles').doc(id).delete();
+                    loadPendingArticles();
+                }
+            });
+        });
+    }
+    async function addArticle() {
+        const title = document.getElementById('articleTitle').value.trim();
+        const content = document.getElementById('articleContent').value.trim();
+        const tagsRaw = document.getElementById('articleTags').value.trim();
+        const category = document.getElementById('articleCategory').value.trim();
+        const imageUrl = document.getElementById('articleImage').value.trim();
+        const issueNumber = document.getElementById('issueNumber').value.trim();
+        if (!title) { alert('සිරස්තලය අනිවාර්යයි.'); return; }
+        const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(t=>t) : [];
+        const articleData = {
+            title, content, tags, category,
+            imageUrl: imageUrl || null,
+            authorId: currentUser?.uid || 'admin',
+            authorName: currentUser?.email || 'Admin',
+            status: 'published',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            publishedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            issueNumber: issueNumber || null
+        };
+        await db.collection('articles').add(articleData);
+        document.getElementById('articleTitle').value = '';
+        document.getElementById('articleContent').value = '';
+        document.getElementById('articleTags').value = '';
+        document.getElementById('articleCategory').value = '';
+        document.getElementById('articleImage').value = '';
+        document.getElementById('issueNumber').value = '';
+        loadArticles();
+        loadAdminArticles();
+    }
+    async function loadAdminArticles() {
+        const snapshot = await db.collection('articles').orderBy('publishedAt', 'desc').get();
+        let html = '<div style="display:grid; gap:1rem;">';
+        snapshot.forEach(doc => {
+            const art = doc.data();
+            html += `<div class="article-card"><div class="card-content"><div class="card-title">${escapeHtml(art.title)} (${art.status})</div><div class="flex-between"><button class="delete-article" data-id="${doc.id}" style="background:#ef4444;">මකන්න</button></div></div></div>`;
+        });
+        html += '</div>';
+        document.getElementById('adminArticlesList').innerHTML = html;
+        document.querySelectorAll('.delete-article').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.getAttribute('data-id');
+                if (confirm('ස්ථිරවම මකන්නද?')) {
+                    await db.collection('articles').doc(id).delete();
+                    loadAdminArticles();
+                    loadArticles();
+                }
+            });
+        });
+    }
+    async function loadPendingUsers() {
+        const usersSnap = await db.collection('users').where('topFanRequest', '==', true).get();
+        let html = '';
+        usersSnap.forEach(doc => {
+            html += `<div class="flex-between" style="margin-bottom:0.5rem;"><span>${escapeHtml(doc.data().email)}</span><button class="approve-badge" data-uid="${doc.id}">Top Fan Badge ලබා දෙන්න</button></div>`;
+        });
+        if (!html) html = '<p>අනුමත කිරීමට ඉල්ලීම් නැත.</p>';
+        document.getElementById('pendingUsersList').innerHTML = html;
+        document.querySelectorAll('.approve-badge').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const uid = btn.getAttribute('data-uid');
+                await db.collection('users').doc(uid).update({ topFanBadge: true, topFanRequest: false });
+                loadPendingUsers();
+            });
+        });
+    }
+    async function loadAdminLogs() {
+        const logs = await db.collection('adminLogs').orderBy('timestamp', 'desc').limit(20).get();
+        let html = '<ul>';
+        logs.forEach(doc => {
+            const log = doc.data();
+            html += `<li>${log.email} - ${log.timestamp?.toDate().toLocaleString()} - IP: ${log.ip}</li>`;
+        });
+        html += '</ul>';
+        document.getElementById('adminLogsList').innerHTML = html;
+    }
+    async function loadGuestLogs() {
+        const guests = await db.collection('guests').limit(20).get();
+        let html = '<ul>';
+        guests.forEach(doc => {
+            const g = doc.data();
+            html += `<li>${g.ip} - ${g.country}, ${g.city} - first seen: ${g.firstSeen?.toDate().toLocaleString()}</li>`;
+        });
+        html += '</ul>';
+        document.getElementById('guestLogsList').innerHTML = html;
+    }
+    async function verifyAdminCode(code) {
+        if (code === ADMIN_SECRET_CODE) {
+            isAdmin = true;
+            localStorage.setItem('adminVerified', 'true');
+            await db.collection('adminLogs').add({
+                userId: currentUser?.uid || 'unknown',
+                email: currentUser?.email || 'unknown',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                ip: localStorage.getItem('visitor_ip') || 'unknown'
+            });
+            document.getElementById('adminVerifySection').classList.add('hidden');
+            document.getElementById('adminPanelContent').classList.remove('hidden');
+            loadPendingArticles();
+            loadAdminArticles();
+            loadPendingUsers();
+            loadAdminLogs();
+            loadGuestLogs();
+            loadAllConversations(); // load encrypted conversations decrypted
+        } else {
+            document.getElementById('adminVerifyError').innerText = 'වැරදි verification code.';
+        }
+    }
+    async function showArchive() {
+        const snapshot = await db.collection('articles').where('status', '==', 'published').orderBy('publishedAt', 'desc').get();
+        const groups = {};
+        snapshot.forEach(doc => {
+            const art = doc.data();
+            const issue = art.issueNumber || 'සාමාන්‍ය ලිපි';
+            if (!groups[issue]) groups[issue] = [];
+            groups[issue].push(art);
+        });
+        let html = '';
+        for (let issue in groups) {
+            html += `<h3>${escapeHtml(issue)}</h3><div class="articles-grid" style="grid-template-columns:repeat(auto-fill, minmax(250px,1fr));">`;
+            groups[issue].forEach(art => {
+                html += `<div class="article-card" data-id="${art.id}"><div class="card-content"><div class="card-title">${escapeHtml(art.title)}</div></div></div>`;
+            });
+            html += `</div>`;
+        }
+        document.getElementById('archiveList').innerHTML = html;
+        document.querySelectorAll('#archiveList .article-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.getAttribute('data-id');
+                const art = allArticles.find(a => a.id === id);
+                if (art) openArticleModal(art);
+            });
+        });
+        document.getElementById('archiveModal').classList.add('active');
+    }
+
+    // Auth state
+    auth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        if (user) {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            currentUserDoc = userDoc.exists ? userDoc.data() : null;
+            const adminVerified = localStorage.getItem('adminVerified') === 'true';
+            if (adminVerified) isAdmin = true;
+            isEditor = currentUserDoc?.role === 'editor' || currentUserDoc?.role === 'admin';
+            document.getElementById('userStatus').innerHTML = `👋 ${user.email}`;
+            document.getElementById('loginShowBtn').classList.add('hidden');
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            if (isAdmin) document.getElementById('adminLink').classList.remove('hidden');
+            else document.getElementById('adminLink').classList.add('hidden');
+            if (isEditor) {
+                document.getElementById('submitLink').classList.remove('hidden');
+                document.getElementById('profileLink').classList.remove('hidden');
+                document.getElementById('messagesLink').classList.remove('hidden');
+            } else {
+                document.getElementById('submitLink').classList.add('hidden');
+                document.getElementById('profileLink').classList.add('hidden');
+                document.getElementById('messagesLink').classList.add('hidden');
+            }
+            await loadUserDashboard();
+            await loadProfile();
+        } else {
+            document.getElementById('userStatus').innerHTML = '';
+            document.getElementById('loginShowBtn').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('adminLink').classList.add('hidden');
+            document.getElementById('submitLink').classList.add('hidden');
+            document.getElementById('profileLink').classList.add('hidden');
+            document.getElementById('messagesLink').classList.add('hidden');
+            isAdmin = false;
+            isEditor = false;
+            localStorage.removeItem('adminVerified');
+            if (messagesUnsub) messagesUnsub();
+        }
+    });
+
+    // Event listeners
+    document.getElementById('loginShowBtn').onclick = () => document.getElementById('authModal').classList.add('active');
+    document.getElementById('logoutBtn').onclick = () => auth.signOut();
+    document.getElementById('dashboardLink').onclick = (e) => { e.preventDefault(); if(currentUser) document.getElementById('userDashboardModal').classList.add('active'); else alert('පළමුව පිවිසෙන්න.'); };
+    document.getElementById('submitLink').onclick = (e) => { e.preventDefault(); if(isEditor) document.getElementById('submitModal').classList.add('active'); else alert('ඔබට මෙම ප්‍රවේශය නැත.'); };
+    document.getElementById('profileLink').onclick = (e) => { e.preventDefault(); if(currentUser) document.getElementById('profileModal').classList.add('active'); };
+    document.getElementById('messagesLink').onclick = (e) => { e.preventDefault(); if(isEditor) { loadContacts(); document.getElementById('messagesModal').classList.add('active'); } };
+    document.getElementById('adminLink').onclick = (e) => { e.preventDefault(); document.getElementById('adminModal').classList.add('active'); };
+    document.getElementById('archiveLink').onclick = (e) => { e.preventDefault(); showArchive(); };
+    document.getElementById('homeLink').onclick = (e) => { e.preventDefault(); window.scrollTo({top:0}); };
+    document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', function() { this.closest('.modal').classList.remove('active'); }));
+    document.getElementById('loginBtn').onclick = async () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pwd = document.getElementById('loginPassword').value;
+        try { await auth.signInWithEmailAndPassword(email, pwd); document.getElementById('authModal').classList.remove('active'); } catch(e) { document.getElementById('authError').innerText = e.message; }
+    };
+    document.getElementById('registerBtn').onclick = async () => {
+        const email = document.getElementById('regEmail').value.trim();
+        const pwd = document.getElementById('regPassword').value;
+        const confirm = document.getElementById('regConfirm').value;
+        if (pwd !== confirm) { document.getElementById('regError').innerText = 'මුරපද දෙක ගැලපෙන්නේ නැත.'; return; }
+        try {
+            await auth.createUserWithEmailAndPassword(email, pwd);
+            await db.collection('users').doc(auth.currentUser.uid).set({ email, role: 'user', topFanBadge: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById('authModal').classList.remove('active');
+        } catch(e) { document.getElementById('regError').innerText = e.message; }
+    };
+    document.getElementById('showRegisterBtn').onclick = () => { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); };
+    document.getElementById('showLoginBtn').onclick = () => { document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); };
+    document.getElementById('verifyAdminBtn').onclick = () => verifyAdminCode(document.getElementById('adminCode').value.trim());
+    document.getElementById('addArticleBtn').onclick = addArticle;
+    document.getElementById('submitArticleBtn').onclick = submitArticle;
+    document.getElementById('saveProfileBtn').onclick = saveProfile;
+    document.getElementById('sendMessageBtn').onclick = sendMessage;
+
+    (async function initGuestTracking() {
+        if (!localStorage.getItem('visitor_ip')) {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                const ip = data.ip;
+                localStorage.setItem('visitor_ip', ip);
+                await db.collection('guests').doc(ip).set({
+                    ip, country: data.country_name, city: data.city,
+                    firstSeen: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } catch(e) { console.warn(e); }
+        }
+    })();
+
+    loadArticles();
+</script>
+</body>
+</html>
