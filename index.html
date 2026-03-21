@@ -1,80 +1,250 @@
+ryHtml;
 <!DOCTYPE html>
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My E-Journal · පුද්ගලික දිනපොත</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>අපේ සඟරාව | Modern Magazine</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <!-- Markdown -->
+    <!-- Markdown parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #fef7ec;
-            color: #2c241a;
-            padding: 2rem 1rem;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #fefaf5;
+            color: #1f1a15;
+            line-height: 1.5;
+            transition: background 0.3s ease;
         }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card {
-            background: white;
-            border-radius: 2rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            border: 1px solid #f0e3d4;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
         }
-        h2 { font-size: 1.8rem; margin-bottom: 1.2rem; color: #4f3a28; }
-        .form-group { margin-bottom: 1rem; }
-        input, textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #e2d2c0;
-            border-radius: 2rem;
-            font-size: 1rem;
-            background: #fffcf8;
+        /* Header */
+        header {
+            background: rgba(255, 250, 240, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #f0e2d4;
+            padding: 1rem 0;
+        }
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #9b7b5c, #6b4e2e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
         }
         button {
             background: #9b7b5c;
             color: white;
             border: none;
-            padding: 0.7rem 1.5rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 2rem;
             cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
         }
-        button:hover { background: #7c5f44; }
+        button:hover {
+            background: #7c5f44;
+            transform: scale(1.02);
+        }
         .btn-outline {
             background: transparent;
             border: 1px solid #9b7b5c;
             color: #9b7b5c;
         }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-        .hidden { display: none; }
-        .error-msg { color: #c25d2e; font-size: 0.85rem; margin-top: 0.5rem; }
-        .entry-card {
-            background: #fffcf7;
-            border-radius: 1.5rem;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.5rem;
-            border-left: 5px solid #e2c7a7;
+        .btn-outline:hover {
+            background: #f1e8df;
         }
-        .entry-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.3rem; }
-        .entry-meta { font-size: 0.8rem; color: #b29573; margin-bottom: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
-        .entry-tag { background: #efe2d4; padding: 0.2rem 0.7rem; border-radius: 30px; font-size: 0.7rem; }
-        .entry-content { line-height: 1.6; margin-bottom: 1rem; }
-        .delete-btn { background: #e2c7aa; color: #5e3e2b; padding: 0.3rem 1rem; font-size: 0.8rem; }
-        .add-form { background: #fff9f2; border-radius: 1.5rem; padding: 1.5rem; margin-top: 2rem; }
+        .hidden {
+            display: none;
+        }
+        /* Article cards */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .article-card {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #efe3d6;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .card-content {
+            padding: 1.5rem;
+        }
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c241a;
+        }
+        .card-meta {
+            font-size: 0.8rem;
+            color: #b29573;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .card-tag {
+            background: #efe2d4;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+        .card-excerpt {
+            color: #5f5548;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        /* Article detail modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 2rem;
+            padding: 2rem;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            background: none;
+            color: #888;
+        }
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #e2d2c0;
+            border-radius: 1.5rem;
+            font-size: 1rem;
+            background: #fffcf8;
+        }
+        .auth-card, .admin-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .error-msg {
+            color: #c25d2e;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+        .success-msg {
+            color: #2c6e2c;
+        }
+        .recommend-section {
+            background: #fff9f2;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 1rem; }
+            .articles-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
+<header>
+    <div class="header-inner">
+        <div class="logo">📖 අපේ සඟරාව</div>
+        <div class="nav-links">
+            <span id="userStatus"></span>
+            <button id="loginShowBtn">පිවිසෙන්න</button>
+            <button id="logoutBtn" class="hidden">පිටවන්න</button>
+        </div>
+    </div>
+</header>
+
 <div class="container">
-    <!-- Auth Section -->
-    <div id="authSection" class="card">
-        <h2>📖 ඔබගේ පුද්ගලික දිනපොතට සාදරයෙන්</h2>
+    <!-- Public articles grid -->
+    <div id="publicArticles"></div>
+
+    <!-- Auth Section (Login/Register) -->
+    <div id="authSection" class="auth-card hidden">
         <div id="loginForm">
+            <h2>පිවිසුම</h2>
             <div class="form-group"><input type="email" id="loginEmail" placeholder="විද්‍යුත් තැපෑල"></div>
             <div class="form-group"><input type="password" id="loginPassword" placeholder="මුරපදය"></div>
             <button id="loginBtn">පිවිසෙන්න</button>
@@ -82,6 +252,7 @@
             <div id="authError" class="error-msg"></div>
         </div>
         <div id="registerForm" class="hidden">
+            <h2>ලියාපදිංචිය</h2>
             <div class="form-group"><input type="email" id="regEmail" placeholder="විද්‍යුත් තැපෑල"></div>
             <div class="form-group"><input type="password" id="regPassword" placeholder="මුරපදය"></div>
             <div class="form-group"><input type="password" id="regConfirm" placeholder="මුරපදය නැවත"></div>
@@ -91,168 +262,82 @@
         </div>
     </div>
 
-    <!-- Journal Section -->
-    <div id="journalSection" class="hidden">
-        <div class="card">
-            <div class="flex-between">
-                <h2>📓 මගේ දිනපොත</h2>
-                <button id="logoutBtn">පිටවන්න</button>
-            </div>
-            <div id="entriesList"></div>
-            <div class="add-form">
-                <h3>✨ අලුත් සටහනක්</h3>
-                <div class="form-group"><input type="text" id="entryTitle" placeholder="සිරස්තලය"></div>
-                <div class="form-group"><textarea id="entryContent" rows="4" placeholder="අන්තර්ගතය (Markdown)"></textarea></div>
-                <div class="form-group"><input type="text" id="entryTags" placeholder="ටැග්ස් (කොමාවෙන් වෙන් කරන්න)"></div>
-                <button id="addEntryBtn">සටහන එකතු කරන්න</button>
+    <!-- User Dashboard (Saved, History, Recommendations) -->
+    <div id="userDashboard" class="hidden">
+        <div class="flex-between">
+            <h2>👤 මගේ අවකාශය</h2>
+            <button id="closeDashboardBtn">වසන්න</button>
+        </div>
+        <div>
+            <h3>📌 සුරකින ලද ලිපි</h3>
+            <div id="savedList"></div>
+            <h3>📖 කියවූ ඉතිහාසය</h3>
+            <div id="historyList"></div>
+            <div id="recommendSection" class="recommend-section">
+                <h3>🤖 ඔබ උනන්දු විය හැකි ලිපි</h3>
+                <div id="recommendList"></div>
             </div>
         </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="hidden">
+        <div class="flex-between">
+            <h2>🛠️ පරිපාලක පුවරුව</h2>
+            <button id="closeAdminBtn">වසන්න</button>
+        </div>
+        <div class="admin-card">
+            <h3>නව ලිපියක් එකතු කරන්න</h3>
+            <div class="form-group"><input type="text" id="articleTitle" placeholder="සිරස්තලය"></div>
+            <div class="form-group"><textarea id="articleContent" rows="6" placeholder="අන්තර්ගතය (Markdown)"></textarea></div>
+            <div class="form-group"><input type="text" id="articleTags" placeholder="ටැග්ස් (කොමාවෙන් වෙන් කරන්න)"></div>
+            <div class="form-group"><input type="text" id="articleCategory" placeholder="ප්‍රවර්ගය"></div>
+            <button id="addArticleBtn">ලිපිය ප්‍රකාශයට පත් කරන්න</button>
+        </div>
+        <div id="adminArticlesList"></div>
+    </div>
+</div>
+
+<!-- Article modal -->
+<div id="articleModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div id="modalArticleContent"></div>
+        <div id="modalActions" class="flex-between" style="margin-top: 1rem;"></div>
     </div>
 </div>
 
 <script>
-    // TODO: ඔබගේ Firebase Config එක පහතට අලවන්න
-    
+    // ==================== 🔧 TODO: ඔබගේ Firebase Config එක මෙහි අලවන්න ====================
     const firebaseConfig = {
-  apiKey: "AIzaSyAXGfmIU4MgHv5BeiI6_x7FTaXjHMwoQ5k",
-  authDomain: "vidyachinthana-61d94.firebaseapp.com",
-  projectId: "vidyachinthana-61d94",
-  storageBucket: "vidyachinthana-61d94.firebasestorage.app",
-  messagingSenderId: "763776055414",
-  appId: "1:763776055414:web:4b9ed6eefb1cd00616c757"
-};
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+    // =======================================================================
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // Global state
+    let currentUser = null;
+    let currentUserDoc = null;
+    let allArticles = []; // cache for recommendations
+
     // DOM elements
+    const publicDiv = document.getElementById('publicArticles');
     const authSection = document.getElementById('authSection');
-    const journalSection = document.getElementById('journalSection');
-    const loginFormDiv = document.getElementById('loginForm');
-    const registerFormDiv = document.getElementById('registerForm');
-    const entriesListDiv = document.getElementById('entriesList');
+    const userDashboard = document.getElementById('userDashboard');
+    const adminPanel = document.getElementById('adminPanel');
+    const userStatusSpan = document.getElementById('userStatus');
+    const loginShowBtn = document.getElementById('loginShowBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    function showAuthUI() {
-        authSection.classList.remove('hidden');
-        journalSection.classList.add('hidden');
-        loginFormDiv.classList.remove('hidden');
-        registerFormDiv.classList.add('hidden');
-        document.getElementById('authError').innerText = '';
-        document.getElementById('regError').innerText = '';
-    }
-    function showJournalUI() {
-        authSection.classList.add('hidden');
-        journalSection.classList.remove('hidden');
-        loadEntries();
-    }
-
-    async function loadEntries() {
-        const user = auth.currentUser;
-        if (!user) return;
-        const entriesRef = db.collection('users').doc(user.uid).collection('entries');
-        try {
-            const snapshot = await entriesRef.orderBy('createdAt', 'desc').get();
-            let html = '';
-            if (snapshot.empty) {
-                html = '<p style="color:#b29573;">තවම සටහනක් නැත. පළමු සටහන එකතු කරන්න.</p>';
-            } else {
-                snapshot.forEach(doc => {
-                    const entry = doc.data();
-                    const title = escapeHtml(entry.title) || 'නිර්නාමික';
-                    let dateStr = 'දිනයක් නැත';
-                    if (entry.createdAt) {
-                        const d = entry.createdAt.toDate();
-                        dateStr = d.toLocaleDateString('si-LK', { year: 'numeric', month: 'long', day: 'numeric' });
-                    }
-                    const tags = entry.tags || [];
-                    const contentHtml = marked.parse(entry.content || '');
-                    const tagsHtml = tags.map(t => `<span class="entry-tag">#${escapeHtml(t)}</span>`).join('');
-                    html += `
-                        <div class="entry-card" data-id="${doc.id}">
-                            <div class="entry-title">${title}</div>
-                            <div class="entry-meta"><span>📅 ${dateStr}</span> ${tagsHtml}</div>
-                            <div class="entry-content">${contentHtml}</div>
-                            <div><button class="delete-btn" data-id="${doc.id}">මකන්න</button></div>
-                        </div>
-                    `;
-                });
-            }
-            entriesListDiv.innerHTML = html;
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = btn.getAttribute('data-id');
-                    if (confirm('මෙම සටහන ස්ථිරවම මකා දමන්නද?')) {
-                        await db.collection('users').doc(user.uid).collection('entries').doc(id).delete();
-                        loadEntries();
-                    }
-                });
-            });
-        } catch (err) {
-            entriesListDiv.innerHTML = '<p class="error-msg">සටහන් ලබාගැනීමේ දෝෂයක්.</p>';
-        }
-    }
-
-    async function addEntry() {
-        const user = auth.currentUser;
-        if (!user) return;
-        const title = document.getElementById('entryTitle').value.trim();
-        const content = document.getElementById('entryContent').value.trim();
-        const tagsRaw = document.getElementById('entryTags').value.trim();
-        const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(t => t) : [];
-        if (!title) { alert('සිරස්තලය අනිවාර්යයි.'); return; }
-        const entryData = {
-            title: title,
-            content: content,
-            tags: tags,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        try {
-            await db.collection('users').doc(user.uid).collection('entries').add(entryData);
-            document.getElementById('entryTitle').value = '';
-            document.getElementById('entryContent').value = '';
-            document.getElementById('entryTags').value = '';
-            loadEntries();
-        } catch (err) {
-            alert('සටහන එකතු කිරීම අසාර්ථකයි: ' + err.message);
-        }
-    }
-
-    async function register() {
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
-        const confirm = document.getElementById('regConfirm').value;
-        if (password !== confirm) { document.getElementById('regError').innerText = 'මුරපද දෙක ගැලපෙන්නේ නැත.'; return; }
-        try {
-            await auth.createUserWithEmailAndPassword(email, password);
-        } catch (err) {
-            document.getElementById('regError').innerText = err.message;
-        }
-    }
-
-    async function login() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        try {
-            await auth.signInWithEmailAndPassword(email, password);
-        } catch (err) {
-            document.getElementById('authError').innerText = 'විද්‍යුත් තැපෑල හෝ මුරපදය වැරදියි.';
-        }
-    }
-
-    auth.onAuthStateChanged(user => {
-        if (user) showJournalUI();
-        else showAuthUI();
-    });
-
-    document.getElementById('loginBtn').addEventListener('click', login);
-    document.getElementById('registerBtn').addEventListener('click', register);
-    document.getElementById('showRegisterBtn').onclick = () => { loginFormDiv.classList.add('hidden'); registerFormDiv.classList.remove('hidden'); };
-    document.getElementById('showLoginBtn').onclick = () => { registerFormDiv.classList.add('hidden'); loginFormDiv.classList.remove('hidden'); };
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-    document.getElementById('addEntryBtn').addEventListener('click', addEntry);
-
+    // Helper: escape HTML
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -262,6 +347,175 @@
             return m;
         });
     }
-</script>
-</body>
-</html>
+
+    // Load all articles (public)
+    async function loadPublicArticles() {
+        const snapshot = await db.collection('articles').where('status', '==', 'published').orderBy('publishedAt', 'desc').get();
+        allArticles = [];
+        let html = '<div class="articles-grid">';
+        snapshot.forEach(doc => {
+            const art = doc.data();
+            art.id = doc.id;
+            allArticles.push(art);
+            const excerpt = art.content ? art.content.substring(0, 120) + '...' : '';
+            const tagsHtml = (art.tags || []).map(t => `<span class="card-tag">#${escapeHtml(t)}</span>`).join('');
+            html += `
+                <div class="article-card" data-id="${doc.id}">
+                    <div class="card-content">
+                        <div class="card-title">${escapeHtml(art.title)}</div>
+                        <div class="card-meta">
+                            <span>📅 ${art.publishedAt ? new Date(art.publishedAt.toDate()).toLocaleDateString('si-LK') : ''}</span>
+                            <span>✍️ ${escapeHtml(art.authorName || 'කතෘ')}</span>
+                            ${tagsHtml}
+                        </div>
+                        <div class="card-excerpt">${escapeHtml(excerpt)}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        publicDiv.innerHTML = html;
+
+        // Add click listeners for each card
+        document.querySelectorAll('.article-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const id = card.getAttribute('data-id');
+                const article = allArticles.find(a => a.id === id);
+                if (article) openArticleModal(article);
+            });
+        });
+    }
+
+    // Open modal with full article
+    async function openArticleModal(article) {
+        const modal = document.getElementById('articleModal');
+        const contentDiv = document.getElementById('modalArticleContent');
+        const actionsDiv = document.getElementById('modalActions');
+        const markedHtml = marked.parse(article.content || '');
+        contentDiv.innerHTML = `
+            <h2>${escapeHtml(article.title)}</h2>
+            <div class="entry-meta" style="margin-bottom:1rem; color:#b29573;">
+                ${article.publishedAt ? new Date(article.publishedAt.toDate()).toLocaleDateString('si-LK') : ''} | ${escapeHtml(article.authorName || 'කතෘ')}
+                ${(article.tags || []).map(t => `<span class="card-tag" style="background:#efe2d4;">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <div>${markedHtml}</div>
+        `;
+        actionsDiv.innerHTML = '';
+        if (currentUser) {
+            // Check if saved
+            const savedRef = db.collection('users').doc(currentUser.uid).collection('saved').doc(article.id);
+            const savedDoc = await savedRef.get();
+            const isSaved = savedDoc.exists;
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = isSaved ? 'සුරකින ලදි' : 'සුරකින්න';
+            saveBtn.onclick = async () => {
+                if (isSaved) {
+                    await savedRef.delete();
+                    saveBtn.textContent = 'සුරකින්න';
+                } else {
+                    await savedRef.set({ articleId: article.id, savedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    saveBtn.textContent = 'සුරකින ලදි';
+                }
+                // Also record view in history
+                const historyRef = db.collection('users').doc(currentUser.uid).collection('history').doc(article.id);
+                await historyRef.set({ articleId: article.id, viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                // Update recommendations after interaction
+                updateRecommendations();
+            };
+            actionsDiv.appendChild(saveBtn);
+        }
+        // Record view in history (if logged in)
+        if (currentUser) {
+            const historyRef = db.collection('users').doc(currentUser.uid).collection('history').doc(article.id);
+            await historyRef.set({ articleId: article.id, viewedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            updateRecommendations();
+        }
+        modal.classList.add('active');
+    }
+
+    // Update recommendations based on user's history/saved tags
+    async function updateRecommendations() {
+        if (!currentUser) return;
+        // Get user's history & saved articles to collect tags
+        const historySnap = await db.collection('users').doc(currentUser.uid).collection('history').get();
+        const savedSnap = await db.collection('users').doc(currentUser.uid).collection('saved').get();
+        const interactedIds = new Set();
+        historySnap.forEach(doc => interactedIds.add(doc.id));
+        savedSnap.forEach(doc => interactedIds.add(doc.id));
+
+        // Fetch all articles to get tags
+        const allArts = allArticles.filter(a => a.status === 'published');
+        const tagFrequency = {};
+        for (let art of allArts) {
+            if (interactedIds.has(art.id)) {
+                (art.tags || []).forEach(tag => {
+                    tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
+                });
+            }
+        }
+        // Score articles based on tag overlap
+        const scored = allArts.map(art => {
+            if (interactedIds.has(art.id)) return { art, score: -1 }; // already interacted
+            let score = 0;
+            (art.tags || []).forEach(tag => {
+                score += tagFrequency[tag] || 0;
+            });
+            return { art, score };
+        });
+        const topRecommendations = scored.filter(s => s.score > 0).sort((a,b) => b.score - a.score).slice(0, 5);
+        const recDiv = document.getElementById('recommendList');
+        if (topRecommendations.length === 0) {
+            recDiv.innerHTML = '<p>තවම නිර්දේශ සඳහා ප්‍රමාණවත් දත්ත නැත. ලිපි කියවන්න, සුරකින්න.</p>';
+            return;
+        }
+        let html = '<div class="articles-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px,1fr));">';
+        topRecommendations.forEach(({art}) => {
+            html += `
+                <div class="article-card" data-id="${art.id}" style="cursor:pointer;">
+                    <div class="card-content">
+                        <div class="card-title">${escapeHtml(art.title)}</div>
+                        <div class="card-meta">${(art.tags || []).slice(0,2).map(t=>`#${escapeHtml(t)}`).join(' ')}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        recDiv.innerHTML = html;
+        // attach click handlers
+        document.querySelectorAll('#recommendList .article-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.getAttribute('data-id');
+                const art = allArticles.find(a => a.id === id);
+                if (art) openArticleModal(art);
+            });
+        });
+    }
+
+    // Load user dashboard (saved & history)
+    async function loadUserDashboard() {
+        if (!currentUser) return;
+        // saved
+        const savedSnap = await db.collection('users').doc(currentUser.uid).collection('saved').get();
+        let savedHtml = '';
+        for (const doc of savedSnap.docs) {
+            const artId = doc.id;
+            const article = allArticles.find(a => a.id === artId);
+            if (article) {
+                savedHtml += `<div class="article-card" data-id="${artId}" style="margin-bottom:0.5rem; padding:0.5rem;">${escapeHtml(article.title)}</div>`;
+            }
+        }
+        if (!savedHtml) savedHtml = '<p>සුරකින ලද ලිපි නැත.</p>';
+        document.getElementById('savedList').innerHTML = savedHtml;
+        // history
+        const historySnap = await db.collection('users').doc(currentUser.uid).collection('history').orderBy('viewedAt', 'desc').limit(10).get();
+        let historyHtml = '';
+        for (const doc of historySnap.docs) {
+            const artId = doc.id;
+            const article = allArticles.find(a => a.id === artId);
+            if (article) {
+                historyHtml += `<div class="article-card" data-id="${artId}" style="margin-bottom:0.5rem; padding:0.5rem;">${escapeHtml(article.title)}</div>`;
+            }
+        }
+        if (!historyHtml) historyHtml = '<p>කියවූ ඉතිහාසය නැත.</p>';
+        document.getElementById('historyList').innerHTML = historyHtml;
+                
