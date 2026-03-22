@@ -571,7 +571,7 @@
         <div class="creators-grid">
             <div class="creator-card"><img src="img/sanchitha.jpg" class="creator-avatar-lg" loading="lazy"><h3>I.M.සංචිත චාරුන්ය ඉලංගසිංහ</h3><p>Student of Walisingha Harishchandra College<br>Anuradhapura<br>Science Fiction Author<br>Graphic Designer<br>Web Designer</p></div>
             <div class="creator-card"><img src="img/danuka.jpg" class="creator-avatar-lg" loading="lazy"><h3>ධනුක අනුහස් හේවගේ</h3><p>Student of Central College<br>Anuradhapura<br>Science Fiction Author<br>Content Creator of Vidusara Sciencetifical Magazine</p></div>
-            <div class="creator-card"><img src="/img/malli.jpg" class="creator-avatar-lg" loading="lazy"><h3></h3><p>🧪 Student of Central College<br>Anuradhapura</p></div>
+            <div class="creator-card"><img src="img/malli.jpg" class="creator-avatar-lg" loading="lazy"><h3></h3><p>🧪 Student of Central College<br>Anuradhapura</p></div>
         </div>
     </div>
 </section>
@@ -601,10 +601,7 @@
         <div class="social-login" style="margin-top:1rem; text-align:center;">
             <p>හෝ මගින් පිවිසෙන්න</p>
             <button id="googleLoginBtn" class="btn-outline"><i class="fab fa-google"></i> Google</button>
-            <button id="facebookLoginBtn" class="btn-outline"><i class="fab fa-facebook"></i> Facebook</button>
-            <button id="githubLoginBtn" class="btn-outline"><i class="fab fa-github"></i> GitHub</button>
-            <button id="microsoftLoginBtn" class="btn-outline"><i class="fab fa-microsoft"></i> Microsoft</button>
-            <button id="appleLoginBtn" class="btn-outline"><i class="fab fa-apple"></i> Apple</button>
+    
         </div>
         <div id="authError" class="error-msg"></div>
     </div>
@@ -2019,11 +2016,7 @@
             setTimeout(() => { document.getElementById('forgotPasswordModal').classList.remove('active'); }, 3000);
         } catch(e) { document.getElementById('resetMsg').innerText = e.message; }
     };
-    document.getElementById('googleLoginBtn').onclick = () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider); };
-    document.getElementById('facebookLoginBtn').onclick = () => { const provider = new firebase.auth.FacebookAuthProvider(); auth.signInWithPopup(provider); };
-    document.getElementById('githubLoginBtn').onclick = () => { const provider = new firebase.auth.GithubAuthProvider(); auth.signInWithPopup(provider); };
-    document.getElementById('microsoftLoginBtn').onclick = () => { const provider = new firebase.auth.OAuthProvider('microsoft.com'); auth.signInWithPopup(provider); };
-    document.getElementById('appleLoginBtn').onclick = () => { const provider = new firebase.auth.OAuthProvider('apple.com'); auth.signInWithPopup(provider); };
+    document.getElementById('googleLoginBtn').onclick = () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider); }    
     document.getElementById('sendRoomMsgBtn').onclick = sendRoomMessage;
     document.getElementById('createRoomBtn').onclick = createRoom;
     document.getElementById('saveSiteSettingsBtn').onclick = saveSiteSettings;
