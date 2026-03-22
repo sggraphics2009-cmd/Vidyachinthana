@@ -1619,7 +1619,6 @@
             if (document.getElementById('designCanvas')) {
                 fabricCanvas = new fabric.Canvas('designCanvas');
                 fabricCanvas.setBackgroundColor('#ffffff', fabricCanvas.renderAll.bind(fabricCanvas));
-                // Add shape button
                 document.getElementById('addShapeBtn')?.addEventListener('click', addShape);
                 document.getElementById('addImageBtn')?.addEventListener('click', addImageToCanvas);
                 document.getElementById('clearCanvasBtn')?.addEventListener('click', () => { if (fabricCanvas) fabricCanvas.clear(); fabricCanvas.setBackgroundColor('#ffffff', fabricCanvas.renderAll.bind(fabricCanvas)); });
