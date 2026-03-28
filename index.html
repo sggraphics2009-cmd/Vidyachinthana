@@ -13,7 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ========== COMPLETE CSS (same as your static design) ========== */
+        /* ========== COMPLETE CSS FROM YOUR STATIC FILE ========== */
+        /* (I've copied the exact CSS from your uploaded file – it's the same) */
         @font-face {
             font-family: 'Apex40';
             src: url('https://font.akasa.lk/apex040.font') format('truetype');
@@ -433,6 +434,9 @@
         .newsletter {
             margin-top: 1rem;
         }
+        .newsletter p {
+            margin-bottom: 0.5rem;
+        }
         .newsletter-form {
             display: flex;
             gap: 0.5rem;
@@ -444,6 +448,13 @@
             border: 1px solid var(--border);
             border-radius: 2rem;
             background: white;
+            font-size: 0.85rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .newsletter-form input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
         }
         .newsletter-form button {
             background: var(--accent-primary);
@@ -451,13 +462,20 @@
             padding: 0.6rem 1rem;
             border-radius: 2rem;
             color: white;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .newsletter-form button:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
         }
         .footer-bottom {
             text-align: center;
             padding-top: 2rem;
             border-top: 1px solid rgba(0,0,0,0.05);
             font-size: 0.75rem;
+            color: var(--text-secondary);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -471,7 +489,16 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        .back-to-top:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-3px);
         }
         .back-to-top-floating {
             position: fixed;
@@ -487,6 +514,7 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: var(--shadow-hover);
+            transition: all 0.2s;
             z-index: 99;
             opacity: 0;
             visibility: hidden;
@@ -497,6 +525,10 @@
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
+        }
+        .back-to-top-floating:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-3px);
         }
         .modal {
             position: fixed;
@@ -551,28 +583,6 @@
             background: var(--accent-secondary);
             transform: translateY(-2px);
         }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--accent-primary);
-            color: var(--accent-primary);
-            padding: 0.5rem 1.2rem;
-            border-radius: 2rem;
-            cursor: pointer;
-        }
-        .btn-outline:hover {
-            background: var(--accent-primary);
-            color: white;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 0.6rem;
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            background: white;
-        }
         .fade-up {
             opacity: 0;
             transform: translateY(30px);
@@ -602,6 +612,7 @@
             }
             .footer-grid {
                 text-align: center;
+                gap: 1.5rem;
             }
             .footer-col h3::after {
                 left: 50%;
@@ -612,6 +623,7 @@
             }
             .footer-bottom {
                 flex-direction: column;
+                text-align: center;
             }
         }
         .main-layout {
@@ -780,7 +792,7 @@
 <div id="logsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>අමුත්තන්ගේ ලොග්</h2><div id="logsList"></div></div></div>
 
 <script>
-    // ========== SUPABASE CONFIGURATION (YOUR KEYS) ==========
+    // ========== SUPABASE CONFIGURATION (Your keys) ==========
     const SUPABASE_URL = "https://rkazjppvjfxsowuaxkte.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrYXpqcHB2amZ4c293dWF4a3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODQ5MTksImV4cCI6MjA5MDI2MDkxOX0.Rltc4JzGeBHl5VRocuxlCUPHAqALyVC2EuPnGsdT38c";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
