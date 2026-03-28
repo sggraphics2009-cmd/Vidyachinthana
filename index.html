@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ========== COMPLETE CSS FROM YOUR STATIC DESIGN ========== */
+        /* ========== APEX40 FONT ========== */
         @font-face {
             font-family: 'Apex40';
             src: url('https://font.akasa.lk/apex040.font') format('truetype');
@@ -21,11 +21,14 @@
             font-style: normal;
             font-display: swap;
         }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
+        /* Light & Bright Color Scheme + Dark Mode variables */
         :root {
             --bg-body: #F9FAFB;
             --bg-card: #FFFFFF;
@@ -41,6 +44,16 @@
             --footer-bg: rgba(255,255,255,0.8);
             --footer-blur: blur(16px);
         }
+        body.dark {
+            --bg-body: #111827;
+            --bg-card: #1F2937;
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --border: #374151;
+            --island-bg: rgba(31,41,55,0.8);
+            --footer-bg: rgba(31,41,55,0.9);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-body);
@@ -48,13 +61,17 @@
             line-height: 1.5;
             scroll-behavior: smooth;
             overflow-x: hidden;
+            transition: background 0.2s, color 0.2s;
         }
+
         .container {
             width: 100%;
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 1rem;
         }
+
+        /* Dynamic Island Header */
         .dynamic-island {
             position: fixed;
             top: 16px;
@@ -187,6 +204,8 @@
         main {
             padding-top: 85px;
         }
+
+        /* Issue & Archive styles */
         .current-issue {
             background: var(--bg-card);
             border-radius: 1.5rem;
@@ -407,6 +426,9 @@
         .footer-col ul {
             list-style: none;
         }
+        .footer-col li {
+            margin-bottom: 0.4rem;
+        }
         .social-links {
             display: flex;
             gap: 0.8rem;
@@ -582,28 +604,6 @@
             background: var(--accent-secondary);
             transform: translateY(-2px);
         }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--accent-primary);
-            color: var(--accent-primary);
-            padding: 0.5rem 1.2rem;
-            border-radius: 2rem;
-            cursor: pointer;
-        }
-        .btn-outline:hover {
-            background: var(--accent-primary);
-            color: white;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 0.6rem;
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            background: white;
-        }
         .fade-up {
             opacity: 0;
             transform: translateY(30px);
@@ -659,6 +659,11 @@
                 gap: 1.5rem;
             }
         }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -671,35 +676,39 @@
             <a href="#" id="homeLink">මුල් පිටුව</a>
             <a href="#" id="archiveLink">සියලු කලාප</a>
             <a href="#" id="creatorsLink">නිර්මාණකරුවෝ</a>
-            <a href="#" id="submitLink" style="display:none;">ලිපියක් එකතු කරන්න</a>
-            <a href="#" id="adminLink" style="display:none;">පරිපාලනය</a>
         </div>
         <div class="island-icons">
             <button class="icon-btn" id="searchIcon"><i class="fas fa-search"></i></button>
-            <span id="userStatus"></span>
-            <button class="icon-btn" id="loginBtnHeader"><i class="fas fa-user"></i></button>
-            <button class="icon-btn" id="logoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="icon-btn" id="userIcon"><i class="fas fa-user"></i></button>
             <button class="icon-btn theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
             <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
         </div>
     </div>
 </div>
 
+<!-- Mobile Menu -->
 <div class="mobile-menu" id="mobileMenu">
     <a href="#" id="mobileHomeLink">මුල් පිටුව</a>
     <a href="#" id="mobileArchiveLink">සියලු කලාප</a>
     <a href="#" id="mobileCreatorsLink">නිර්මාණකරුවෝ</a>
-    <a href="#" id="mobileSubmitLink" style="display:none;">ලිපියක් එකතු කරන්න</a>
-    <a href="#" id="mobileAdminLink" style="display:none;">පරිපාලනය</a>
     <div style="height:1px; background:var(--border); margin:0.5rem 0;"></div>
-    <div style="display:flex; justify-content:space-between;"><span>🔍 සෙවීම</span><span>👤 ගිණුම</span><span>🌓 තේමාව</span></div>
+    <div style="display:flex; justify-content:space-between;">
+        <span id="mobileSearchBtn">🔍 සෙවීම</span>
+        <span id="mobileUserBtn">👤 ගිණුම</span>
+        <span id="mobileThemeBtn">🌓 තේමාව</span>
+    </div>
 </div>
 
 <main>
     <div class="container">
-        <div id="currentIssueContainer"></div>
+        <!-- Current Issue Section (dynamically filled) -->
+        <div id="currentIssueContainer"><div class="loading">පූරණය වෙමින්...</div></div>
+
         <div class="main-layout">
-            <div id="archivePreviewContainer"></div>
+            <!-- Left column: Archive preview (recent past issues) -->
+            <div id="archivePreviewContainer"><div class="loading">පූරණය වෙමින්...</div></div>
+
+            <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="weekly-schedule">
                     <h3><i class="fas fa-calendar-alt"></i> සතිපතා කාලසටහන</h3>
@@ -715,12 +724,13 @@
 
 <section class="creators-section" id="creatorsSection">
     <div class="container">
-        <h2><i class="fas fa-users"></i> විද්‍යා චින්තන චින්තකයින්</h2>
+        <h2><i class="fas fa-users"></i> විද්‍යා චින්තන චින්තකයින් </h2>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">විද්‍යා චින්තනයේ පුරෝගාමීන්</p>
-        <div class="creators-grid" id="creatorsGrid"></div>
+        <div class="creators-grid" id="creatorsGrid"><div class="loading">පූරණය වෙමින්...</div></div>
     </div>
 </section>
 
+<!-- Advanced Footer -->
 <footer class="site-footer">
     <div class="container">
         <div class="footer-grid">
@@ -736,13 +746,19 @@
             </div>
             <div class="footer-col">
                 <h3>සඟරාව තුළින්</h3>
-                <ul><li>📘 විද්‍යාත්මක සංකල්ප</li><li>🚀 විද්‍යා ප්‍රබන්ධ</li><li>🔬 නව සොයාගැනීම්</li><li>🌱 පාරිසරික විද්‍යාව</li></ul>
+                <ul>
+                    <li>📘 විද්‍යාත්මක සංකල්ප</li>
+                    <li>🚀 විද්‍යා ප්‍රබන්ධ</li>
+                    <li>🔬 නව සොයාගැනීම්</li>
+                    <li>🌱 පාරිසරික විද්‍යාව</li>
+                </ul>
             </div>
             <div class="footer-col">
                 <h3>අප හා සම්බන්ධ වන්න</h3>
                 <p><i class="fas fa-envelope"></i> sggraphics2009@gmail.com</p>
                 <p><i class="fas fa-phone-alt"></i> +94 704047184</p>
                 <p><i class="fas fa-map-marker-alt"></i> අනුරාධපුර, ශ්‍රී ලංකාව</p>
+                <p><i class="fas fa-clock"></i> සතිපතා අලුත් කිරීම්</p>
                 <div class="newsletter">
                     <p><i class="fas fa-envelope-open-text"></i> නව කලාප දැනුම්දීම් සඳහා</p>
                     <div class="newsletter-form">
@@ -753,76 +769,52 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; <span id="currentYear"></span> විද්‍යා චින්තන – සියලුම හිමිකම් ඇවිරිණි</p>
+            <p>&copy; <span id="currentYear"></span> විද්‍යා චින්තන – සියලුම හිමිකම් ඇවිරිණි | ගණිතය, විද්‍යාව හා තාක්ෂණය තුළින් සමාජය ප්‍රගමනයකට</p>
             <button class="back-to-top" id="footerBackToTop"><i class="fas fa-arrow-up"></i></button>
         </div>
     </div>
 </footer>
 
-<div class="back-to-top-floating" id="floatingBackToTop"><i class="fas fa-arrow-up"></i></div>
+<!-- Floating Back to Top Button -->
+<div class="back-to-top-floating" id="floatingBackToTop">
+    <i class="fas fa-arrow-up"></i>
+</div>
 
 <!-- Modals -->
-<div id="authModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span>
-    <div id="loginForm">
-        <h2>පිවිසුම</h2>
-        <div class="form-group"><input type="email" id="loginEmail" placeholder="විද්‍යුත් තැපෑල"></div>
-        <div class="form-group"><input type="password" id="loginPassword" placeholder="මුරපදය"></div>
-        <button id="loginBtn" class="btn-primary">පිවිසෙන්න</button>
-        <div style="text-align:center; margin:1rem 0;">හෝ</div>
-        <button id="googleLoginBtn" class="btn-outline">Google සමඟ පිවිසෙන්න</button>
-        <div style="text-align:center; margin-top:1rem;"><a href="#" id="showRegisterLink">ලියාපදිංචි වන්න</a></div>
-        <div id="authError" style="color:red;"></div>
+<div id="articleModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div id="modalArticleContent"></div>
     </div>
-    <div id="registerForm" style="display:none;">
-        <h2>ලියාපදිංචිය</h2>
-        <div class="form-group"><input type="email" id="regEmail" placeholder="විද්‍යුත් තැපෑල"></div>
-        <div class="form-group"><input type="password" id="regPassword" placeholder="මුරපදය"></div>
-        <div class="form-group"><input type="text" id="regFullName" placeholder="සම්පූර්ණ නම"></div>
-        <button id="registerBtn" class="btn-primary">ලියාපදිංචි වන්න</button>
-        <div style="text-align:center; margin-top:1rem;"><a href="#" id="showLoginLink">පිවිසුමට ආපසු</a></div>
-        <div id="regError" style="color:red;"></div>
+</div>
+<div id="archiveModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>සියලු කලාප</h2>
+        <div id="fullArchiveList" class="archive-grid" style="margin-top:1rem;"></div>
     </div>
-</div></div>
-
-<div id="submitModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span>
-    <h2>නව ලිපියක් ඉදිරිපත් කරන්න</h2>
-    <div class="form-group"><input type="text" id="submitTitle" placeholder="සිරස්තලය *"></div>
-    <div class="form-group"><textarea id="submitContent" rows="8" placeholder="අන්තර්ගතය (Markdown) *"></textarea></div>
-    <div class="form-group"><input type="text" id="submitCategory" placeholder="ප්‍රවර්ගය"></div>
-    <div class="form-group"><input type="file" id="submitImage" accept="image/*"></div>
-    <button id="submitArticleBtn" class="btn-primary">ඉදිරිපත් කරන්න</button>
-    <div id="submitError" style="color:red;"></div>
-</div></div>
-
-<div id="adminModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span>
-    <h2>පරිපාලක පුවරුව</h2>
-    <div id="adminContent">
-        <h3>අනුමත කිරීමට ලිපි</h3>
-        <div id="pendingArticlesList"></div>
-        <hr>
-        <button id="seedDataBtn" class="btn-outline">Demo දත්ත එකතු කරන්න (පළමු වරට)</button>
-        <button id="aiLayoutBtn" class="btn-outline">AI Layout (Random)</button>
-        <button id="viewLogsBtn" class="btn-outline">Guest Logs</button>
-        <button id="chatBtn" class="btn-outline">Admin Chat</button>
+</div>
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2><i class="fas fa-search"></i> ලිපි සෙවීම</h2>
+        <input type="text" id="searchInput" placeholder="ලිපි මාතෘකාව, කතෘ හෝ අන්තර්ගතය..." style="width:100%; padding:0.8rem; margin:1rem 0; border-radius:2rem; border:1px solid var(--border);">
+        <div id="searchResults" style="max-height:400px; overflow-y:auto;"></div>
     </div>
-</div></div>
-
-<div id="articleModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><div id="modalArticleContent"></div></div></div>
-<div id="archiveModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>සියලු කලාප</h2><div id="fullArchiveList" class="archive-grid"></div></div></div>
-<div id="chatModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>පරිශීලකයින් සමඟ කතාබස්</h2><div id="chatUsersList"></div><div id="chatMessagesArea" style="margin-top:1rem;"></div><div><input type="text" id="chatMessageInput" placeholder="පණිවුඩය..."><button id="sendChatMsgBtn">යවන්න</button></div></div></div>
-<div id="logsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>අමුත්තන්ගේ ලොග්</h2><div id="logsList"></div></div></div>
+</div>
 
 <script>
     // ========== SUPABASE CONFIGURATION ==========
-    const SUPABASE_URL = "https://rkazjppvjfxsowuaxkte.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrYXpqcHB2amZ4c293dWF4a3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODQ5MTksImV4cCI6MjA5MDI2MDkxOX0.Rltc4JzGeBHl5VRocuxlCUPHAqALyVC2EuPnGsdT38c";
+    // ඔබගේ Supabase URL සහ anon key පහතින් ඇතුළත් කරන්න
+    const SUPABASE_URL = 'https://your-project.supabase.co';   // <-- මෙය වෙනස් කරන්න
+    const SUPABASE_ANON_KEY = 'your-anon-key';                 // <-- මෙය වෙනස් කරන්න
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Global state
-    let currentUser = null;
-    let currentUserRole = null;
+    // ========== GLOBAL VARIABLES ==========
+    let allIssues = [];     // සියලු කලාප (articles එක්ක)
+    let allCreators = [];
 
-    // Helper functions
+    // ========== HELPER FUNCTIONS ==========
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -833,145 +825,109 @@
         });
     }
 
-    async function fetchUserRole(userId) {
-        const { data, error } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', userId)
-            .single();
-        if (error) return 'user';
-        return data.role;
+    function openArticleModal(article, issueTitle) {
+        const modalContent = document.getElementById('modalArticleContent');
+        const markedHtml = marked.parse(article.content);
+        modalContent.innerHTML = `
+            <div style="margin-bottom:0.5rem; color:var(--accent-primary);">${escapeHtml(issueTitle)}</div>
+            <h2>${escapeHtml(article.title)}</h2>
+            <div style="margin-bottom:1rem; color:var(--text-secondary);">
+                ${escapeHtml(article.author)} | ${escapeHtml(article.category)}
+            </div>
+            <img src="${article.image}" style="width:100%; border-radius:1rem; margin-bottom:1rem;" onerror="this.src='https://picsum.photos/id/0/600/400'">
+            <div>${markedHtml}</div>
+        `;
+        document.getElementById('articleModal').classList.add('active');
     }
 
-    async function logGuestVisit() {
-        if (sessionStorage.getItem('guest_logged')) return;
-        sessionStorage.setItem('guest_logged', 'true');
-        try {
-            const ipRes = await fetch('https://api.ipify.org?format=json');
-            const ipData = await ipRes.json();
-            await supabase.from('guest_logs').insert({
-                ip: ipData.ip,
-                user_agent: navigator.userAgent,
-                page: window.location.pathname
-            });
-        } catch(e) { console.warn(e); }
-    }
-
-    // Authentication state
-    supabase.auth.onAuthStateChange(async (event, session) => {
-        currentUser = session?.user || null;
-        if (currentUser) {
-            const { data: existing } = await supabase
-                .from('users')
-                .select('id')
-                .eq('id', currentUser.id)
-                .single();
-            if (!existing) {
-                await supabase
-                    .from('users')
-                    .insert({ id: currentUser.id, email: currentUser.email, role: 'user', full_name: currentUser.user_metadata?.full_name || '' });
-            }
-            currentUserRole = await fetchUserRole(currentUser.id);
-            updateAuthUI();
-            loadAllIssues();
-            loadPendingCount();
-            logGuestVisit();
-        } else {
-            currentUserRole = null;
-            updateAuthUI();
-            loadAllIssues();
-            logGuestVisit();
-        }
-    });
-
-    function updateAuthUI() {
-        const userStatusSpan = document.getElementById('userStatus');
-        const loginBtn = document.getElementById('loginBtnHeader');
-        const logoutBtnElem = document.getElementById('logoutBtn');
-        const submitLink = document.getElementById('submitLink');
-        const adminLink = document.getElementById('adminLink');
-        const mobileSubmitLink = document.getElementById('mobileSubmitLink');
-        const mobileAdminLink = document.getElementById('mobileAdminLink');
-
-        if (currentUser) {
-            userStatusSpan.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.email}`;
-            loginBtn.style.display = 'none';
-            logoutBtnElem.style.display = 'inline-flex';
-            if (currentUserRole === 'editor' || currentUserRole === 'admin') {
-                submitLink.style.display = 'inline-block';
-                mobileSubmitLink.style.display = 'block';
-            } else {
-                submitLink.style.display = 'none';
-                mobileSubmitLink.style.display = 'none';
-            }
-            if (currentUserRole === 'admin') {
-                adminLink.style.display = 'inline-block';
-                mobileAdminLink.style.display = 'block';
-            } else {
-                adminLink.style.display = 'none';
-                mobileAdminLink.style.display = 'none';
-            }
-        } else {
-            userStatusSpan.innerHTML = '';
-            loginBtn.style.display = 'inline-flex';
-            logoutBtnElem.style.display = 'none';
-            submitLink.style.display = 'none';
-            adminLink.style.display = 'none';
-            mobileSubmitLink.style.display = 'none';
-            mobileAdminLink.style.display = 'none';
-        }
-    }
-
-    // ========== ISSUES & ARTICLES ==========
-    async function loadAllIssues() {
-        const { data: issues, error } = await supabase
-            .from('issues')
-            .select('*')
-            .order('date', { ascending: false });
-        if (error) return [];
-        const issuesWithArticles = [];
-        for (const issue of issues) {
-            if (issue.articles && issue.articles.length) {
-                const { data: articles } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .in('id', issue.articles);
-                issuesWithArticles.push({ ...issue, articles: articles || [] });
-            } else {
-                issuesWithArticles.push({ ...issue, articles: [] });
-            }
-        }
-        displayCurrentIssue(issuesWithArticles);
-        displayArchivePreview(issuesWithArticles);
-        return issuesWithArticles;
-    }
-
-    function displayCurrentIssue(issues) {
-        const container = document.getElementById('currentIssueContainer');
-        if (!issues.length) {
-            container.innerHTML = '<p>කලාප කිසිවක් නොමැත. කරුණාකර පරිපාලකට දන්වන්න.</p>';
-            return;
-        }
-        const current = issues[0];
+    function showIssueModal(issue) {
+        const modalContent = document.getElementById('modalArticleContent');
         let articlesHtml = '';
-        current.articles.forEach(art => {
+        (issue.articles || []).forEach(art => {
             articlesHtml += `
-                <div class="issue-article-card" data-article-id="${art.id}">
-                    <img src="${art.image_url || 'https://picsum.photos/id/0/80/80'}" class="issue-article-img">
+                <div class="issue-article-card" data-article-id="${art.id}" style="cursor:pointer; margin-bottom:0.5rem;">
+                    <img src="${art.image}" class="issue-article-img" style="width:60px; height:60px;" onerror="this.src='https://picsum.photos/id/0/60/60'">
                     <div class="issue-article-info">
                         <div class="issue-article-title">${escapeHtml(art.title)}</div>
-                        <div class="issue-article-meta">${escapeHtml(art.author_name)} | ${escapeHtml(art.category || '')}</div>
+                        <div class="issue-article-meta">${escapeHtml(art.author)} | ${escapeHtml(art.category)}</div>
+                    </div>
+                </div>
+            `;
+        });
+        modalContent.innerHTML = `
+            <h2>${escapeHtml(issue.title)}</h2>
+            <div class="issue-meta">${issue.date} | ලිපි ${issue.articles ? issue.articles.length : 0}ක්</div>
+            <img src="${issue.cover}" style="width:100%; border-radius:1rem; margin:1rem 0;" onerror="this.src='https://picsum.photos/id/0/800/400'">
+            <div style="margin-top:1rem;">${articlesHtml}</div>
+        `;
+        document.getElementById('articleModal').classList.add('active');
+        document.querySelectorAll('#modalArticleContent .issue-article-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.getAttribute('data-article-id');
+                const article = issue.articles.find(a => a.id === id);
+                if (article) {
+                    document.getElementById('articleModal').classList.remove('active');
+                    openArticleModal(article, issue.title);
+                }
+            });
+        });
+    }
+
+    // ========== DATA FETCHING FROM SUPABASE ==========
+    async function fetchAllData() {
+        try {
+            // 1. Get all issues with their articles
+            const { data: issues, error: issuesError } = await supabase
+                .from('issues')
+                .select('*, articles(*)')
+                .order('created_at', { ascending: false });
+            if (issuesError) throw issuesError;
+            allIssues = issues || [];
+
+            // 2. Get all creators
+            const { data: creators, error: creatorsError } = await supabase
+                .from('creators')
+                .select('*');
+            if (creatorsError) throw creatorsError;
+            allCreators = creators || [];
+
+            // 3. Render UI
+            renderCurrentIssue();
+            renderArchivePreview();
+            renderCreators();
+            renderTopCreatorsSidebar();
+        } catch (err) {
+            console.error('Error loading data:', err);
+            document.getElementById('currentIssueContainer').innerHTML = '<div class="loading">දත්ත පූරණය කිරීමේ දෝෂයක්. පසුව නැවත උත්සාහ කරන්න.</div>';
+        }
+    }
+
+    function renderCurrentIssue() {
+        const container = document.getElementById('currentIssueContainer');
+        if (!allIssues.length) {
+            container.innerHTML = '<div class="loading">කලාප නොමැත</div>';
+            return;
+        }
+        const current = allIssues[0];
+        let articlesHtml = '';
+        (current.articles || []).forEach(art => {
+            articlesHtml += `
+                <div class="issue-article-card" data-article-id="${art.id}">
+                    <img src="${art.image}" class="issue-article-img" onerror="this.src='https://picsum.photos/id/0/80/80'">
+                    <div class="issue-article-info">
+                        <div class="issue-article-title">${escapeHtml(art.title)}</div>
+                        <div class="issue-article-meta">${escapeHtml(art.author)} | ${escapeHtml(art.category)}</div>
                     </div>
                 </div>
             `;
         });
         const html = `
             <div class="current-issue">
-                <img src="${current.cover_image || 'https://picsum.photos/id/0/800/400'}" class="issue-cover">
+                <img src="${current.cover}" class="issue-cover" alt="Cover" onerror="this.src='https://picsum.photos/id/0/800/400'">
                 <div class="issue-header">
                     <span class="issue-badge">වත්මන් කලාපය</span>
                     <h2 class="issue-title">${escapeHtml(current.title)}</h2>
-                    <div class="issue-meta">${current.date} | ලිපි ${current.articles.length}ක්</div>
+                    <div class="issue-meta">${current.date} | ලිපි ${current.articles ? current.articles.length : 0}ක්</div>
                 </div>
                 <div class="articles-in-issue">
                     ${articlesHtml}
@@ -988,14 +944,18 @@
         });
     }
 
-    function displayArchivePreview(issues) {
+    function renderArchivePreview() {
         const container = document.getElementById('archivePreviewContainer');
-        const pastIssues = issues.slice(1, 3);
+        if (!allIssues.length) {
+            container.innerHTML = '<div class="loading">කලාප නොමැත</div>';
+            return;
+        }
+        const pastIssues = allIssues.slice(1, 3); // පසුගිය කලාප 2
         let html = `<div class="archive-section"><h2>📚 පෙර කලාප</h2><div class="archive-grid">`;
         pastIssues.forEach(issue => {
             html += `
                 <div class="archive-item" data-issue-id="${issue.id}">
-                    <img src="${issue.cover_image || 'https://picsum.photos/id/20/200/160'}" class="archive-cover">
+                    <img src="${issue.cover}" class="archive-cover" onerror="this.src='https://picsum.photos/id/0/200/160'">
                     <div class="archive-info">
                         <div class="archive-title">${escapeHtml(issue.title)}</div>
                         <div class="archive-date">${issue.date}</div>
@@ -1005,56 +965,24 @@
         });
         html += `</div><div style="text-align:center; margin-top:1rem;"><button id="viewAllArchivesBtn" class="btn-primary">සියලු කලාප බලන්න</button></div></div>`;
         container.innerHTML = html;
+
         document.querySelectorAll('.archive-item').forEach(item => {
             item.addEventListener('click', () => {
                 const issueId = item.getAttribute('data-issue-id');
-                const issue = issues.find(i => i.id === issueId);
+                const issue = allIssues.find(i => i.id === issueId);
                 if (issue) showIssueModal(issue);
             });
         });
-        document.getElementById('viewAllArchivesBtn')?.addEventListener('click', () => showFullArchive(issues));
+        document.getElementById('viewAllArchivesBtn')?.addEventListener('click', showFullArchive);
     }
 
-    function showIssueModal(issue) {
-        const modalContent = document.getElementById('modalArticleContent');
-        let articlesHtml = '';
-        issue.articles.forEach(art => {
-            articlesHtml += `
-                <div class="issue-article-card" data-article-id="${art.id}" style="cursor:pointer; margin-bottom:0.5rem;">
-                    <img src="${art.image_url || 'https://picsum.photos/id/0/60/60'}" class="issue-article-img" style="width:60px; height:60px;">
-                    <div class="issue-article-info">
-                        <div class="issue-article-title">${escapeHtml(art.title)}</div>
-                        <div class="issue-article-meta">${escapeHtml(art.author_name)} | ${escapeHtml(art.category || '')}</div>
-                    </div>
-                </div>
-            `;
-        });
-        modalContent.innerHTML = `
-            <h2>${escapeHtml(issue.title)}</h2>
-            <div class="issue-meta">${issue.date} | ලිපි ${issue.articles.length}ක්</div>
-            <img src="${issue.cover_image || 'https://picsum.photos/id/0/800/400'}" style="width:100%; border-radius:1rem; margin:1rem 0;">
-            <div style="margin-top:1rem;">${articlesHtml}</div>
-        `;
-        document.getElementById('articleModal').classList.add('active');
-        document.querySelectorAll('#modalArticleContent .issue-article-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const id = card.getAttribute('data-article-id');
-                const article = issue.articles.find(a => a.id === id);
-                if (article) {
-                    document.getElementById('articleModal').classList.remove('active');
-                    openArticleModal(article, issue.title);
-                }
-            });
-        });
-    }
-
-    function showFullArchive(issues) {
+    function showFullArchive() {
         const archiveDiv = document.getElementById('fullArchiveList');
         let html = '';
-        issues.forEach(issue => {
+        allIssues.forEach(issue => {
             html += `
                 <div class="archive-item" data-issue-id="${issue.id}">
-                    <img src="${issue.cover_image || 'https://picsum.photos/id/20/200/160'}" class="archive-cover">
+                    <img src="${issue.cover}" class="archive-cover" onerror="this.src='https://picsum.photos/id/0/200/160'">
                     <div class="archive-info">
                         <div class="archive-title">${escapeHtml(issue.title)}</div>
                         <div class="archive-date">${issue.date}</div>
@@ -1067,7 +995,7 @@
         document.querySelectorAll('#fullArchiveList .archive-item').forEach(item => {
             item.addEventListener('click', () => {
                 const issueId = item.getAttribute('data-issue-id');
-                const issue = issues.find(i => i.id === issueId);
+                const issue = allIssues.find(i => i.id === issueId);
                 if (issue) {
                     document.getElementById('archiveModal').classList.remove('active');
                     showIssueModal(issue);
@@ -1076,506 +1004,242 @@
         });
     }
 
-    // Article modal with comments, likes, saves
-    let currentArticle = null;
-    let currentIssueTitle = '';
-
-    async function openArticleModal(article, issueTitle) {
-        currentArticle = article;
-        currentIssueTitle = issueTitle;
-        const modalContent = document.getElementById('modalArticleContent');
-        const markedHtml = marked.parse(article.content);
-        const userLiked = localStorage.getItem(`liked_${article.id}`) === 'true';
-        let isSaved = false;
-        if (currentUser) {
-            const { data } = await supabase
-                .from('saves')
-                .select('id')
-                .eq('user_id', currentUser.id)
-                .eq('article_id', article.id)
-                .single();
-            isSaved = !!data;
+    function renderCreators() {
+        const grid = document.getElementById('creatorsGrid');
+        if (!allCreators.length) {
+            grid.innerHTML = '<div class="loading">නිර්මාණකරුවන් නොමැත</div>';
+            return;
         }
-        modalContent.innerHTML = `
-            <div style="margin-bottom:0.5rem; color:var(--accent-primary);">${escapeHtml(issueTitle)}</div>
-            <h2>${escapeHtml(article.title)}</h2>
-            <div style="margin-bottom:1rem; color:var(--text-secondary);">
-                ${escapeHtml(article.author_name)} | ${escapeHtml(article.category || '')}
-            </div>
-            <img src="${article.image_url || 'https://picsum.photos/id/0/800/400'}" style="width:100%; border-radius:1rem; margin-bottom:1rem;">
-            <div>${markedHtml}</div>
-            <hr>
-            <div style="display:flex; gap:1rem; margin:1rem 0;">
-                <button id="likeBtn" class="btn-outline"><i class="fas fa-heart"></i> ${article.likes || 0}</button>
-                ${currentUser ? `<button id="saveBtn" class="btn-outline"><i class="fas fa-bookmark"></i> ${isSaved ? 'සුරකින ලදි' : 'සුරකින්න'}</button>` : ''}
-            </div>
-            <div id="commentsSection">
-                <h3>අදහස් (Comments)</h3>
-                <div id="commentsList"></div>
-                <div class="form-group">
-                    <input type="text" id="commentName" placeholder="ඔබගේ නම (විකල්ප)">
-                    <input type="email" id="commentEmail" placeholder="ඊමේල් (විකල්ප)">
-                    <textarea id="commentText" rows="3" placeholder="ඔබගේ අදහස..."></textarea>
-                    <button id="submitCommentBtn" class="btn-primary">අදහස එකතු කරන්න</button>
-                </div>
-            </div>
-        `;
-        document.getElementById('articleModal').classList.add('active');
-        loadComments(article.id);
-        document.getElementById('likeBtn').addEventListener('click', async () => {
-            if (userLiked) {
-                alert('ඔබ දැනටමත් like කර ඇත.');
-                return;
-            }
-            const newLikes = (article.likes || 0) + 1;
-            await supabase
-                .from('articles')
-                .update({ likes: newLikes })
-                .eq('id', article.id);
-            localStorage.setItem(`liked_${article.id}`, 'true');
-            article.likes = newLikes;
-            document.getElementById('likeBtn').innerHTML = `<i class="fas fa-heart"></i> ${newLikes}`;
-        });
-        if (currentUser) {
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.addEventListener('click', async () => {
-                if (isSaved) {
-                    await supabase
-                        .from('saves')
-                        .delete()
-                        .eq('user_id', currentUser.id)
-                        .eq('article_id', article.id);
-                    isSaved = false;
-                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> සුරකින්න';
-                } else {
-                    await supabase
-                        .from('saves')
-                        .insert({ user_id: currentUser.id, article_id: article.id });
-                    isSaved = true;
-                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> සුරකින ලදි';
-                }
-            });
-        }
-        document.getElementById('submitCommentBtn').addEventListener('click', async () => {
-            const name = document.getElementById('commentName').value.trim();
-            const email = document.getElementById('commentEmail').value.trim();
-            const text = document.getElementById('commentText').value.trim();
-            if (!text) { alert('කරුණාකර අදහසක් ඇතුළත් කරන්න.'); return; }
-            await supabase
-                .from('comments')
-                .insert({
-                    article_id: article.id,
-                    user_id: currentUser?.id || null,
-                    name: name || 'අමුත්තෙක්',
-                    email: email || null,
-                    text: text,
-                    parent_id: null
-                });
-            document.getElementById('commentText').value = '';
-            loadComments(article.id);
-        });
-    }
-
-    async function loadComments(articleId) {
-        const { data: comments, error } = await supabase
-            .from('comments')
-            .select('*')
-            .eq('article_id', articleId)
-            .order('created_at', { ascending: true });
-        if (error) return;
-        const container = document.getElementById('commentsList');
         let html = '';
-        for (const c of comments) {
+        allCreators.forEach(c => {
             html += `
-                <div style="border-bottom:1px solid var(--border); padding:0.5rem 0;">
-                    <strong>${escapeHtml(c.name || c.email || 'Anonymous')}</strong> <small>${new Date(c.created_at).toLocaleString()}</small><br>
-                    ${escapeHtml(c.text)}
-                    ${currentUserRole === 'admin' ? `<button class="reply-comment" data-id="${c.id}">පිළිතුරු දෙන්න</button>` : ''}
+                <div class="creator-card">
+                    <img src="${c.avatar}" class="creator-avatar" onerror="this.src='https://ui-avatars.com/api/?background=3B82F6&color=fff&name=${encodeURIComponent(c.name)}'">
+                    <h3>${escapeHtml(c.name)}</h3>
+                    <p style="color:var(--accent-primary);">${escapeHtml(c.role)}</p>
+                    <p style="font-size:0.85rem;">${escapeHtml(c.bio)}</p>
                 </div>
             `;
-        }
-        container.innerHTML = html || '<p>තවම අදහස් නැත.</p>';
-        if (currentUserRole === 'admin') {
-            document.querySelectorAll('.reply-comment').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const parentId = btn.getAttribute('data-id');
-                    const replyText = prompt('ඔබගේ පිළිතුර:');
-                    if (replyText) {
-                        await supabase
-                            .from('comments')
-                            .insert({
-                                article_id: articleId,
-                                user_id: currentUser.id,
-                                name: 'Admin',
-                                text: replyText,
-                                parent_id: parentId
-                            });
-                        loadComments(articleId);
-                    }
-                });
-            });
-        }
-    }
-
-    // Editor submission
-    async function submitArticle(title, content, category, imageFile) {
-        if (!currentUser) throw new Error('Not logged in');
-        let imageUrl = '';
-        if (imageFile) {
-            const fileExt = imageFile.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            const { error } = await supabase.storage
-                .from('article_images')
-                .upload(fileName, imageFile);
-            if (error) throw error;
-            const { publicUrl } = supabase.storage.from('article_images').getPublicUrl(fileName);
-            imageUrl = publicUrl;
-        }
-        const { error } = await supabase
-            .from('articles')
-            .insert({
-                title, content, category, image_url: imageUrl,
-                author_id: currentUser.id,
-                author_name: currentUser.email,
-                status: 'pending'
-            });
-        if (error) throw error;
-    }
-
-    // Admin functions
-    async function loadPendingArticles() {
-        const { data, error } = await supabase
-            .from('articles')
-            .select('*')
-            .eq('status', 'pending');
-        if (error) return [];
-        return data;
-    }
-    async function loadPendingCount() {
-        const pending = await loadPendingArticles();
-        const badge = document.getElementById('adminBadge');
-        if (badge && pending.length > 0) {
-            badge.textContent = pending.length;
-            badge.style.display = 'inline-block';
-        } else if (badge) badge.style.display = 'none';
-    }
-    async function approveArticle(articleId) {
-        await supabase
-            .from('articles')
-            .update({ status: 'published', updated_at: new Date() })
-            .eq('id', articleId);
-    }
-    async function rejectArticle(articleId) {
-        await supabase
-            .from('articles')
-            .delete()
-            .eq('id', articleId);
-    }
-
-    // Seed demo data
-    async function seedDemoData() {
-        const { data: existingIssues } = await supabase.from('issues').select('id').limit(1);
-        if (existingIssues && existingIssues.length > 0) return;
-        const demoArticles = [
-            { title: "ක්වොන්ටම් පරිගණකකරණයේ අනාගතය", content: "ක්වොන්ටම් පරිගණක ලෝකයේ විප්ලවයක් ඇති කරනු ඇත...", category: "භෞතික විද්‍යාව", image_url: "https://picsum.photos/id/0/600/400", author_name: "සංචිත චාරුන්ය", status: "published" },
-            { title: "ඩීඑන්ඒ සංස්කරණය සහ ජාන චිකිත්සාව", content: "CRISPR තාක්ෂණයෙන් රෝග සුව කළ හැකි අනාගතයක්...", category: "ජීව විද්‍යාව", image_url: "https://picsum.photos/id/20/600/400", author_name: "ධනුක අනුහස්", status: "published" }
-        ];
-        const articleIds = [];
-        for (const art of demoArticles) {
-            const { data, error } = await supabase.from('articles').insert(art).select('id');
-            if (!error && data) articleIds.push(data[0].id);
-        }
-        const demoIssues = [
-            { id: "2026-03-22", title: "මාර්තු අවසාන කලාපය", cover_image: "https://picsum.photos/id/0/800/400", date: "2026 මාර්තු 22", articles: articleIds },
-            { id: "2026-03-15", title: "මාර්තු මැද කලාපය", cover_image: "https://picsum.photos/id/20/800/400", date: "2026 මාර්තු 15", articles: articleIds }
-        ];
-        for (const issue of demoIssues) {
-            await supabase.from('issues').insert(issue);
-        }
-        alert('Demo දත්ත එකතු කරන ලදි. පිටුව refresh වේ.');
-        location.reload();
-    }
-
-    // AI Layout (random order)
-    async function randomizeLayout() {
-        const issues = await loadAllIssues();
-        if (!issues.length) return;
-        const current = issues[0];
-        const shuffled = [...current.articles].sort(() => Math.random() - 0.5);
-        await supabase
-            .from('issues')
-            .update({ articles: shuffled.map(a => a.id) })
-            .eq('id', current.id);
-        alert('Layout randomized. Refresh to see changes.');
-        location.reload();
-    }
-
-    // Guest logs
-    async function showGuestLogs() {
-        const { data, error } = await supabase
-            .from('guest_logs')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(50);
-        if (error) { alert(error.message); return; }
-        const logsDiv = document.getElementById('logsList');
-        logsDiv.innerHTML = data.map(log => `<div>${new Date(log.created_at).toLocaleString()} - ${log.ip} - ${log.user_agent}</div>`).join('') || '<p>ලොග් නැත.</p>';
-        document.getElementById('logsModal').classList.add('active');
-    }
-
-    // Admin Chat
-    let chatUsers = [];
-    let selectedUserId = null;
-    let chatSubscription = null;
-    async function loadChatUsers() {
-        const { data, error } = await supabase
-            .from('users')
-            .select('id, email, full_name')
-            .neq('id', currentUser.id);
-        if (error) return;
-        chatUsers = data;
-        const listDiv = document.getElementById('chatUsersList');
-        listDiv.innerHTML = chatUsers.map(u => `<div class="chat-user" data-id="${u.id}" style="cursor:pointer; padding:5px; border-bottom:1px solid var(--border);">${escapeHtml(u.email)}</div>`).join('');
-        document.querySelectorAll('.chat-user').forEach(el => {
-            el.addEventListener('click', () => selectUser(el.getAttribute('data-id')));
         });
-    }
-    async function selectUser(userId) {
-        selectedUserId = userId;
-        let conversationId = null;
-        const { data: existing } = await supabase
-            .from('conversations')
-            .select('id')
-            .contains('participants', [currentUser.id, userId]);
-        if (existing && existing.length > 0) {
-            conversationId = existing[0].id;
-        } else {
-            const { data: newConv } = await supabase
-                .from('conversations')
-                .insert({ participants: [currentUser.id, userId] })
-                .select()
-                .single();
-            if (newConv) conversationId = newConv.id;
-        }
-        if (conversationId) {
-            if (chatSubscription) await chatSubscription.unsubscribe();
-            const { data: messages } = await supabase
-                .from('messages')
-                .select('*')
-                .eq('conversation_id', conversationId)
-                .order('created_at', { ascending: true });
-            displayMessages(messages);
-            chatSubscription = supabase
-                .channel(`messages:${conversationId}`)
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` }, payload => {
-                    displayMessages([payload.new], true);
-                })
-                .subscribe();
-            window.currentConvId = conversationId;
-        }
-    }
-    function displayMessages(messages, append = false) {
-        const area = document.getElementById('chatMessagesArea');
-        if (!append) area.innerHTML = '';
-        messages.forEach(msg => {
-            const div = document.createElement('div');
-            div.textContent = `${msg.sender_id === currentUser.id ? 'මම' : 'පරිශීලක'}: ${msg.text}`;
-            area.appendChild(div);
-        });
-    }
-    async function sendChatMessage() {
-        const text = document.getElementById('chatMessageInput').value.trim();
-        if (!text || !window.currentConvId) return;
-        await supabase.from('messages').insert({
-            conversation_id: window.currentConvId,
-            sender_id: currentUser.id,
-            text: text
-        });
-        document.getElementById('chatMessageInput').value = '';
+        grid.innerHTML = html;
     }
 
-    // Creators (static)
-    const creators = [
-        { name: "I.M. සංචිත චාරුන්ය ඉලංගසිංහ", role: "වෙබ් නිර්මාතෘ/කර්තෘ", bio: "Science Fiction Author, Graphic Designer, Web Designer", avatar: "img/sanchitha.jpg" },
-        { name: "ධනුක අනුහස් හේවගේ", role: "කර්තෘ / අන්තර්ගත නිර්මාතෘ", bio: "Science Fiction Author, Content Creator", avatar: "img/dhanuka.jpg" }
-    ];
-    function buildCreators() {
-        const grid = document.getElementById('creatorsGrid');
-        grid.innerHTML = creators.map(c => `
-            <div class="creator-card">
-                <img src="${c.avatar}" class="creator-avatar" onerror="this.src='https://randomuser.me/api/portraits/men/1.jpg'">
-                <h3>${escapeHtml(c.name)}</h3>
-                <p style="color:var(--accent-primary);">${escapeHtml(c.role)}</p>
-                <p style="font-size:0.85rem;">${escapeHtml(c.bio)}</p>
-            </div>
-        `).join('');
-    }
-    function buildSidebarCreators() {
+    function renderTopCreatorsSidebar() {
         const sidebarDiv = document.getElementById('topCreatorsSidebar');
-        sidebarDiv.innerHTML = creators.slice(0,2).map(c => `
+        if (!allCreators.length) {
+            sidebarDiv.innerHTML = '<div class="loading">කතෘවරුන් නොමැත</div>';
+            return;
+        }
+        sidebarDiv.innerHTML = allCreators.slice(0,2).map(c => `
             <div style="display:flex; gap:0.8rem; align-items:center; margin-bottom:1rem;">
-                <img src="${c.avatar}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;" onerror="this.src='https://randomuser.me/api/portraits/men/1.jpg'">
+                <img src="${c.avatar}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?background=3B82F6&color=fff&name=${encodeURIComponent(c.name)}'">
                 <div><strong>${escapeHtml(c.name)}</strong><br><small>${escapeHtml(c.role)}</small></div>
             </div>
         `).join('');
     }
 
-    // Event listeners (DOM ready)
-    document.addEventListener('DOMContentLoaded', () => {
-        // Auth modals
-        const authModal = document.getElementById('authModal');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        document.getElementById('showRegisterLink').onclick = (e) => { e.preventDefault(); loginForm.style.display = 'none'; registerForm.style.display = 'block'; };
-        document.getElementById('showLoginLink').onclick = (e) => { e.preventDefault(); loginForm.style.display = 'block'; registerForm.style.display = 'none'; };
-        document.getElementById('loginBtn').onclick = async () => {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            try {
-                await supabase.auth.signInWithPassword({ email, password });
-                authModal.classList.remove('active');
-            } catch (err) { document.getElementById('authError').innerText = err.message; }
-        };
-        document.getElementById('registerBtn').onclick = async () => {
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const fullName = document.getElementById('regFullName').value;
-            try {
-                await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
-                authModal.classList.remove('active');
-            } catch (err) { document.getElementById('regError').innerText = err.message; }
-        };
-        document.getElementById('googleLoginBtn').onclick = async () => {
-            try {
-                await supabase.auth.signInWithOAuth({ provider: 'google' });
-            } catch (err) { document.getElementById('authError').innerText = err.message; }
-        };
-        document.getElementById('loginBtnHeader').onclick = () => authModal.classList.add('active');
-        document.getElementById('logoutBtn').onclick = () => supabase.auth.signOut();
-
-        // Editor submission
-        document.getElementById('submitLink').onclick = () => document.getElementById('submitModal').classList.add('active');
-        document.getElementById('submitArticleBtn').onclick = async () => {
-            const title = document.getElementById('submitTitle').value.trim();
-            const content = document.getElementById('submitContent').value.trim();
-            const category = document.getElementById('submitCategory').value.trim();
-            const imageFile = document.getElementById('submitImage').files[0];
-            if (!title || !content) { document.getElementById('submitError').innerText = 'සිරස්තලය සහ අන්තර්ගතය අනිවාර්යයි.'; return; }
-            try {
-                await submitArticle(title, content, category, imageFile);
-                alert('ලිපිය සාර්ථකව ඉදිරිපත් කරන ලදි.');
-                document.getElementById('submitModal').classList.remove('active');
-                document.getElementById('submitTitle').value = '';
-                document.getElementById('submitContent').value = '';
-                document.getElementById('submitCategory').value = '';
-                document.getElementById('submitImage').value = '';
-            } catch (err) { document.getElementById('submitError').innerText = err.message; }
-        };
-
-        // Admin panel
-        document.getElementById('adminLink').onclick = async () => {
-            if (currentUserRole !== 'admin') return;
-            document.getElementById('adminModal').classList.add('active');
-            const pending = await loadPendingArticles();
-            const listDiv = document.getElementById('pendingArticlesList');
-            if (pending.length === 0) {
-                listDiv.innerHTML = '<p>අනුමත කිරීමට ලිපි නැත.</p>';
+    // ========== NEWSLETTER SUBSCRIPTION ==========
+    async function subscribeNewsletter(email) {
+        const { error } = await supabase
+            .from('subscribers')
+            .insert([{ email }]);
+        if (error) {
+            if (error.code === '23505') {
+                alert("මෙම ඊමේල් ලිපිනය දැනටමත් ලියාපදිංචි කර ඇත.");
             } else {
-                let html = '';
-                pending.forEach(art => {
-                    html += `
-                        <div style="border-bottom:1px solid var(--border); padding:1rem 0;">
-                            <strong>${escapeHtml(art.title)}</strong><br>
-                            ${escapeHtml(art.author_name)} | ${escapeHtml(art.category)}<br>
-                            <button class="btn-primary approve-btn" data-id="${art.id}">අනුමත කරන්න</button>
-                            <button class="btn-outline reject-btn" data-id="${art.id}">ප්‍රතික්ෂේප කරන්න</button>
-                        </div>
-                    `;
-                });
-                listDiv.innerHTML = html;
-                document.querySelectorAll('.approve-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const id = btn.getAttribute('data-id');
-                        await approveArticle(id);
-                        document.getElementById('adminModal').classList.remove('active');
-                        await loadAllIssues();
-                        await loadPendingCount();
-                    });
-                });
-                document.querySelectorAll('.reject-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const id = btn.getAttribute('data-id');
-                        await rejectArticle(id);
-                        document.getElementById('adminModal').classList.remove('active');
-                        await loadAllIssues();
-                        await loadPendingCount();
-                    });
-                });
+                console.error(error);
+                alert("දෝෂයක් හටගත්තා. පසුව නැවත උත්සාහ කරන්න.");
             }
-        };
-        document.getElementById('seedDataBtn').onclick = seedDemoData;
-        document.getElementById('aiLayoutBtn').onclick = randomizeLayout;
-        document.getElementById('viewLogsBtn').onclick = showGuestLogs;
-        document.getElementById('chatBtn').onclick = async () => {
-            if (currentUserRole !== 'admin') return;
-            await loadChatUsers();
-            document.getElementById('chatModal').classList.add('active');
-            document.getElementById('sendChatMsgBtn').onclick = sendChatMessage;
-        };
-
-        // Creators
-        buildCreators();
-        buildSidebarCreators();
-
-        // UI interactions (nav, hamburger, back to top)
-        document.getElementById('homeLink').onclick = (e) => { e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); };
-        document.getElementById('archiveLink').onclick = async (e) => { e.preventDefault(); const issues = await loadAllIssues(); showFullArchive(issues); };
-        document.getElementById('creatorsLink').onclick = (e) => { e.preventDefault(); document.getElementById('creatorsSection').scrollIntoView({behavior:'smooth'}); };
-        document.getElementById('mobileHomeLink').onclick = (e) => { e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); };
-        document.getElementById('mobileArchiveLink').onclick = async (e) => { e.preventDefault(); const issues = await loadAllIssues(); showFullArchive(issues); };
-        document.getElementById('mobileCreatorsLink').onclick = (e) => { e.preventDefault(); document.getElementById('creatorsSection').scrollIntoView({behavior:'smooth'}); };
-        const hamburger = document.getElementById('hamburger');
-        const mobileMenu = document.getElementById('mobileMenu');
-        hamburger.onclick = (e) => { e.stopPropagation(); mobileMenu.classList.toggle('active'); };
-        document.addEventListener('click', (e) => { if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) mobileMenu.classList.remove('active'); });
-        const footerBackBtn = document.getElementById('footerBackToTop');
-        const floatingBackBtn = document.getElementById('floatingBackToTop');
-        const scrollToTop = () => window.scrollTo({top:0, behavior:'smooth'});
-        footerBackBtn.onclick = scrollToTop;
-        floatingBackBtn.onclick = scrollToTop;
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) floatingBackBtn.classList.add('visible');
-            else floatingBackBtn.classList.remove('visible');
-        });
-        document.getElementById('currentYear').innerText = new Date().getFullYear();
-        document.getElementById('newsletterSubscribeBtn').onclick = () => {
-            const email = document.getElementById('newsletterEmail').value.trim();
-            alert(email ? `ස්තුතියි! ${email} ලිපිනයට අපගේ නව කලාප දැනුම්දීම් එවනු ඇත.` : "කරුණාකර ඊමේල් ලිපිනයක් ඇතුළත් කරන්න.");
-        };
-        // Modal close
-        document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-            });
-        });
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) e.target.classList.remove('active');
-        });
-        // Dynamic Island shrink
-        const island = document.getElementById('dynamicIsland');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) island.classList.add('shrink');
-            else island.classList.remove('shrink');
-        });
-        // GSAP animations
-        function initAnimations() {
-            gsap.registerPlugin(ScrollTrigger);
-            const elements = document.querySelectorAll('.current-issue, .archive-item, .creator-card, .sidebar');
-            elements.forEach(el => {
-                el.classList.add('fade-up');
-                ScrollTrigger.create({ trigger: el, start: 'top 85%', onEnter: () => el.classList.add('visible') });
-            });
+            return false;
         }
+        return true;
+    }
+
+    // ========== SEARCH FUNCTION ==========
+    async function searchArticles(query) {
+        if (!query.trim()) return [];
+        const { data, error } = await supabase
+            .from('articles')
+            .select('*, issues(title)')
+            .ilike('title', `%${query}%`)
+            .or(`content.ilike.%${query}%,author.ilike.%${query}%`);
+        if (error) {
+            console.error(error);
+            return [];
+        }
+        return data || [];
+    }
+
+    function displaySearchResults(results) {
+        const resultsDiv = document.getElementById('searchResults');
+        if (!results.length) {
+            resultsDiv.innerHTML = '<p>කිසිදු ප්‍රතිඵලයක් නොමැත.</p>';
+            return;
+        }
+        let html = '<div class="archive-grid" style="grid-template-columns:1fr;">';
+        results.forEach(art => {
+            html += `
+                <div class="issue-article-card" data-article-id="${art.id}" data-issue-title="${escapeHtml(art.issues?.title || '')}">
+                    <img src="${art.image}" class="issue-article-img" onerror="this.src='https://picsum.photos/id/0/80/80'">
+                    <div class="issue-article-info">
+                        <div class="issue-article-title">${escapeHtml(art.title)}</div>
+                        <div class="issue-article-meta">${escapeHtml(art.author)} | ${escapeHtml(art.category)}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        resultsDiv.innerHTML = html;
+        document.querySelectorAll('#searchResults .issue-article-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.getAttribute('data-article-id');
+                const issueTitle = card.getAttribute('data-issue-title');
+                const article = results.find(a => a.id === id);
+                if (article) {
+                    document.getElementById('searchModal').classList.remove('active');
+                    openArticleModal(article, issueTitle);
+                }
+            });
+        });
+    }
+
+    // ========== UI INTERACTIONS ==========
+    // Dynamic Island shrink
+    const island = document.getElementById('dynamicIsland');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) island.classList.add('shrink');
+        else island.classList.remove('shrink');
+    });
+
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileMenu.classList.toggle('active');
+    });
+    document.addEventListener('click', (e) => {
+        if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) mobileMenu.classList.remove('active');
+    });
+
+    // Navigation
+    document.getElementById('homeLink')?.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); });
+    document.getElementById('archiveLink')?.addEventListener('click', (e) => { e.preventDefault(); showFullArchive(); });
+    document.getElementById('creatorsLink')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('creatorsSection').scrollIntoView({behavior:'smooth'}); });
+    document.getElementById('mobileHomeLink')?.addEventListener('click', (e) => { e.preventDefault(); mobileMenu.classList.remove('active'); window.scrollTo({top:0, behavior:'smooth'}); });
+    document.getElementById('mobileArchiveLink')?.addEventListener('click', (e) => { e.preventDefault(); mobileMenu.classList.remove('active'); showFullArchive(); });
+    document.getElementById('mobileCreatorsLink')?.addEventListener('click', (e) => { e.preventDefault(); mobileMenu.classList.remove('active'); document.getElementById('creatorsSection').scrollIntoView({behavior:'smooth'}); });
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') document.body.classList.add('dark');
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+        const icon = themeToggle.querySelector('i');
+        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    });
+    // Set correct icon on load
+    themeToggle.querySelector('i').className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+
+    // Newsletter
+    document.getElementById('newsletterSubscribeBtn')?.addEventListener('click', async () => {
+        const email = document.getElementById('newsletterEmail').value.trim();
+        if (!email) {
+            alert("කරුණාකර ඊමේල් ලිපිනයක් ඇතුළත් කරන්න.");
+            return;
+        }
+        const success = await subscribeNewsletter(email);
+        if (success) {
+            alert(`ස්තුතියි! ${email} ලිපිනයට අපගේ නව කලාප දැනුම්දීම් එවනු ඇත.`);
+            document.getElementById('newsletterEmail').value = '';
+        }
+    });
+
+    // Search Modal
+    const searchIcon = document.getElementById('searchIcon');
+    const searchModal = document.getElementById('searchModal');
+    const searchInput = document.getElementById('searchInput');
+    searchIcon.addEventListener('click', () => {
+        searchModal.classList.add('active');
+        searchInput.value = '';
+        document.getElementById('searchResults').innerHTML = '';
+        searchInput.focus();
+    });
+    let searchTimeout;
+    searchInput.addEventListener('input', async (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value;
+        if (!query.trim()) {
+            document.getElementById('searchResults').innerHTML = '';
+            return;
+        }
+        searchTimeout = setTimeout(async () => {
+            const results = await searchArticles(query);
+            displaySearchResults(results);
+        }, 300);
+    });
+    // Mobile search button
+    document.getElementById('mobileSearchBtn')?.addEventListener('click', () => {
+        mobileMenu.classList.remove('active');
+        searchModal.classList.add('active');
+    });
+    document.getElementById('mobileUserBtn')?.addEventListener('click', () => alert("පිවිසුම් පද්ධතිය පසුව එකතු වේ."));
+    document.getElementById('mobileThemeBtn')?.addEventListener('click', () => {
+        themeToggle.click();
+        mobileMenu.classList.remove('active');
+    });
+    document.getElementById('userIcon')?.addEventListener('click', () => alert("පිවිසුම් පද්ධතිය පසුව එකතු වේ."));
+
+    // Back to Top
+    const footerBackBtn = document.getElementById('footerBackToTop');
+    const floatingBackBtn = document.getElementById('floatingBackToTop');
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    footerBackBtn?.addEventListener('click', scrollToTop);
+    floatingBackBtn?.addEventListener('click', scrollToTop);
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) floatingBackBtn.classList.add('visible');
+        else floatingBackBtn.classList.remove('visible');
+    });
+
+    // Modal close
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('articleModal').classList.remove('active');
+            document.getElementById('archiveModal').classList.remove('active');
+            document.getElementById('searchModal').classList.remove('active');
+        });
+    });
+    window.addEventListener('click', (e) => {
+        const modals = ['articleModal', 'archiveModal', 'searchModal'];
+        modals.forEach(id => {
+            const modal = document.getElementById(id);
+            if (e.target === modal) modal.classList.remove('active');
+        });
+    });
+
+    // GSAP Animations
+    function initAnimations() {
+        gsap.registerPlugin(ScrollTrigger);
+        const elements = document.querySelectorAll('.current-issue, .archive-item, .creator-card, .sidebar');
+        elements.forEach(el => {
+            el.classList.add('fade-up');
+            ScrollTrigger.create({
+                trigger: el,
+                start: 'top 85%',
+                once: true,
+                onEnter: () => el.classList.add('visible')
+            });
+        });
+    }
+
+    // Set current year
+    document.getElementById('currentYear').innerText = new Date().getFullYear();
+
+    // Initialize everything
+    fetchAllData().then(() => {
         setTimeout(initAnimations, 200);
     });
 </script>
