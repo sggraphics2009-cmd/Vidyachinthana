@@ -13,8 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ========== COMPLETE CSS FROM YOUR STATIC FILE ========== */
-        /* (I've copied the exact CSS from your uploaded file – it's the same) */
+        /* ========== COMPLETE CSS FROM YOUR STATIC DESIGN ========== */
         @font-face {
             font-family: 'Apex40';
             src: url('https://font.akasa.lk/apex040.font') format('truetype');
@@ -583,6 +582,28 @@
             background: var(--accent-secondary);
             transform: translateY(-2px);
         }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+        }
+        .btn-outline:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            background: white;
+        }
         .fade-up {
             opacity: 0;
             transform: translateY(30px);
@@ -792,7 +813,7 @@
 <div id="logsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>අමුත්තන්ගේ ලොග්</h2><div id="logsList"></div></div></div>
 
 <script>
-    // ========== SUPABASE CONFIGURATION (Your keys) ==========
+    // ========== SUPABASE CONFIGURATION ==========
     const SUPABASE_URL = "https://rkazjppvjfxsowuaxkte.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrYXpqcHB2amZ4c293dWF4a3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODQ5MTksImV4cCI6MjA5MDI2MDkxOX0.Rltc4JzGeBHl5VRocuxlCUPHAqALyVC2EuPnGsdT38c";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -812,7 +833,6 @@
         });
     }
 
-    // Fetch user role
     async function fetchUserRole(userId) {
         const { data, error } = await supabase
             .from('users')
@@ -823,7 +843,6 @@
         return data.role;
     }
 
-    // Guest IP logging (once per session)
     async function logGuestVisit() {
         if (sessionStorage.getItem('guest_logged')) return;
         sessionStorage.setItem('guest_logged', 'true');
@@ -838,11 +857,10 @@
         } catch(e) { console.warn(e); }
     }
 
-    // Authentication state change
+    // Authentication state
     supabase.auth.onAuthStateChange(async (event, session) => {
         currentUser = session?.user || null;
         if (currentUser) {
-            // Ensure user exists in users table
             const { data: existing } = await supabase
                 .from('users')
                 .select('id')
@@ -866,7 +884,6 @@
         }
     });
 
-    // Update UI based on role
     function updateAuthUI() {
         const userStatusSpan = document.getElementById('userStatus');
         const loginBtn = document.getElementById('loginBtnHeader');
@@ -905,7 +922,7 @@
         }
     }
 
-    // Load issues and articles
+    // ========== ISSUES & ARTICLES ==========
     async function loadAllIssues() {
         const { data: issues, error } = await supabase
             .from('issues')
