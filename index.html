@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ========== COMPLETE CSS (from your static file) ========== */
+        /* ========== COMPLETE CSS (same as your static design) ========== */
         @font-face {
             font-family: 'Apex40';
             src: url('https://font.akasa.lk/apex040.font') format('truetype');
@@ -780,16 +780,14 @@
 <div id="logsModal" class="modal"><div class="modal-content"><span class="close-modal">&times;</span><h2>අමුත්තන්ගේ ලොග්</h2><div id="logsList"></div></div></div>
 
 <script>
-    // ========== SUPABASE CONFIGURATION ==========
-    // TODO: Replace with your actual Supabase URL and anon key
-    const SUPABASE_URL = "https://rkazjppvjfxsowuaxkte.supabase.co";   // <-- change this
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrYXpqcHB2amZ4c293dWF4a3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODQ5MTksImV4cCI6MjA5MDI2MDkxOX0.Rltc4JzGeBHl5VRocuxlCUPHAqALyVC2EuPnGsdT38c";                // <-- change this
+    // ========== SUPABASE CONFIGURATION (YOUR KEYS) ==========
+    const SUPABASE_URL = "https://rkazjppvjfxsowuaxkte.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrYXpqcHB2amZ4c293dWF4a3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODQ5MTksImV4cCI6MjA5MDI2MDkxOX0.Rltc4JzGeBHl5VRocuxlCUPHAqALyVC2EuPnGsdT38c";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Global state
     let currentUser = null;
     let currentUserRole = null;
-    let currentArticleId = null;
 
     // Helper functions
     function escapeHtml(str) {
@@ -1049,19 +1047,16 @@
         });
     }
 
-    // Article modal with comments and likes
+    // Article modal with comments, likes, saves
     let currentArticle = null;
     let currentIssueTitle = '';
 
     async function openArticleModal(article, issueTitle) {
         currentArticle = article;
         currentIssueTitle = issueTitle;
-        currentArticleId = article.id;
         const modalContent = document.getElementById('modalArticleContent');
         const markedHtml = marked.parse(article.content);
-        // Like status from localStorage
         const userLiked = localStorage.getItem(`liked_${article.id}`) === 'true';
-        // Save status if logged in
         let isSaved = false;
         if (currentUser) {
             const { data } = await supabase
@@ -1097,9 +1092,7 @@
             </div>
         `;
         document.getElementById('articleModal').classList.add('active');
-        // Load comments
         loadComments(article.id);
-        // Like button
         document.getElementById('likeBtn').addEventListener('click', async () => {
             if (userLiked) {
                 alert('ඔබ දැනටමත් like කර ඇත.');
@@ -1114,7 +1107,6 @@
             article.likes = newLikes;
             document.getElementById('likeBtn').innerHTML = `<i class="fas fa-heart"></i> ${newLikes}`;
         });
-        // Save button
         if (currentUser) {
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.addEventListener('click', async () => {
@@ -1135,7 +1127,6 @@
                 }
             });
         }
-        // Comment submit
         document.getElementById('submitCommentBtn').addEventListener('click', async () => {
             const name = document.getElementById('commentName').value.trim();
             const email = document.getElementById('commentEmail').value.trim();
@@ -1303,7 +1294,7 @@
         document.getElementById('logsModal').classList.add('active');
     }
 
-    // Admin Chat (simplified)
+    // Admin Chat
     let chatUsers = [];
     let selectedUserId = null;
     let chatSubscription = null;
