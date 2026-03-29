@@ -156,4 +156,66 @@ function escapeHtml(str) {
     if (m === '>') return '&gt;';
     return m;
   });
+}    <div class="card" style="padding: 1.2rem;">
+      <h3>📚 පෙර කලාප</h3>
+      <div class="archive-grid" style="margin-top: 1rem;">
+        ${issues.map(issue => `
+          <div class="archive-item" data-id="${issue.id}" style="cursor: pointer;">
+            <img src="${issue.cover_image || 'https://placehold.co/150x100'}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 0.5rem;">
+            <p style="font-weight: 500;">${escapeHtml(issue.title)}</p>
+            <small class="text-muted">${new Date(issue.published_date).toLocaleDateString('si-LK')}</small>
+          </div>
+        `).join('')}
+      </div>
+      <button id="viewAllArchivesBtn" class="btn-primary" style="margin-top: 1rem;">සියලු කලාප</button>
+    </div>
+  `;
+  container.innerHTML = html;
+  document.querySelectorAll('.archive-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.getAttribute('data-id');
+      window.location.href = `issue.html?id=${id}`;
+    });
+  });
+  document.getElementById('viewAllArchivesBtn')?.addEventListener('click', showAllIssuesModal);
+}
+
+async function loadTopCreators() {
+  const { data: authors } = await supabase
+    .from('users')
+    .select('display_name, avatar_url')
+    .eq('role', 'author')
+    .limit(3);
+  const container = document.getElementById('topCreators');
+  if (!authors || authors.length === 0) {
+    container.innerHTML = '<p>කතෘවරුන් නොමැත.</p>';
+    return;
+  }
+  container.innerHTML = authors.map(a => `
+    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+      <img src="${a.avatar_url || 'https://placehold.co/40'}" style="width: 40px; height: 40px; border-radius: 50%;">
+      <div><strong>${escapeHtml(a.display_name)}</strong></div>
+    </div>
+  `).join('');
+}
+
+async function showAllIssuesModal() {
+  const { data: issues } = await supabase.from('issues').select('*').order('published_date', { ascending: false });
+  if (!issues || issues.length === 0) {
+    alert('කලාප නොමැත.');
+    return;
+  }
+  let msg = 'සියලු කලාප:\n';
+  issues.forEach(i => msg += `${i.title} - ${new Date(i.published_date).toLocaleDateString()}\n`);
+  alert(msg);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
 }
