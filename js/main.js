@@ -1,3 +1,5 @@
+import { supabase, getCurrentUser } from './supabase.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const themeToggle = document.getElementById('themeToggle');
   if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
