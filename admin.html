@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover">
+    <title>පරිපාලක පැනලය - විද්‍යා චින්තන</title>
+    <!-- copy full CSS from index.html -->
+</head>
+<body>
+    <!-- Dynamic Island Header and mobile menu (same) -->
+    <main class="container" style="margin-top:100px;">
+        <div class="current-issue" style="margin:0; padding:1.5rem;">
+            <h2 class="issue-title">පරිපාලක පැනලය</h2>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(350px,1fr)); gap:1.5rem;">
+                <div class="articles-in-issue">
+                    <h3>සමාලෝචනයට ඇති ලිපි</h3>
+                    <div id="pendingArticles"></div>
+                </div>
+                <div class="articles-in-issue">
+                    <h3>නව කලාපයක් සාදන්න</h3>
+                    <form id="createIssueForm">
+                        <div class="form-group"><label>කලාපයේ මාතෘකාව *</label><input type="text" id="issueTitle" required style="width:100%; padding:0.6rem; border-radius:2rem;"></div>
+                        <div class="form-group"><label>ආවරණ රූපය</label><input type="file" id="issueCover" accept="image/*"></div>
+                        <div class="form-group"><label>ප්‍රකාශන දිනය *</label><input type="date" id="issueDate" required style="width:100%; padding:0.6rem; border-radius:2rem;"></div>
+                        <div class="form-group"><label>මෙම කලාපයට ඇතුළත් කරන ලිපි</label><div id="articlesForIssue"></div></div>
+                        <button type="submit" class="btn-primary">කලාපය ප්‍රකාශයට පත් කරන්න</button>
+                    </form>
+                </div>
+            </div>
+            <div class="articles-in-issue" style="margin-top:2rem;">
+                <h3>පරිශීලක කළමනාකරණය</h3>
+                <div id="userList"></div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer (same) -->
+    <script type="importmap">
+        { "imports": { "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm" } }
+    </script>
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js';
+
+        const SUPABASE_URL = 'https://qrbqdpxyuhcxefyztdmb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyYnFkcHh5dWhjeGVmeXp0ZG1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MTU4MDcsImV4cCI6MjA5MDI5MTgwN30.5w1oC2DV9yEzA6oOWUqne5QF4Snu_Kq7vn5zneGyuK4';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function getCurrentUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+            const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
+            return { ...user, ...profile };
+        }
+
+        const admin = await getCurrentUser();
+        if (!admin || admin.role !== 'admin') {
+            alert('ඔබට මෙම පිටුවට ප්‍රවේශ වීමේ අවසර නැත.');
+            window.location.href = 'index.html';
+        }
+
+        // Load pending articles
+        async function loadPendingArticles() {
+            const { data: articles } = await supabase
+                .from('articles')
+                .select('id, title, author_id, submitted_at, author:author_id(display_name)')
+                .eq('status', 'pending')
+                .order('submitted_at', { ascending: false });
+            const container = document.getElementById('pendingArticles');
+            if (!articles || articles.length === 0) {
+                container.innerHTML = '<p>සමාලෝචනයට ලිපි නොමැත.</p>';
+                return;
+            }
+            container.innerHTML = articles.map(art => `
+                <div style="border-bottom:1px solid var(--border); padding:0.8rem 0;">
+                    <div><strong>${escapeHtml(art.title)}</strong></div>
+                    <div><small>කතෘ: ${art.author?.display_name || 'නොදනී'} | ${new Date(art.submitted_at).toLocaleDateString()}</small></div>
+                    <div style="margin-top:0.5rem;">
+                        <button class="btn-primary" data-id="${art.id}" data-action="approve">අනුමත කරන්න</button>
+                        <button class="btn-outline" data-id="${art.id}" data-action="reject">ප්‍රතික්ෂේප කරන්න</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('[data-action="approve"]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    await supabase.from('articles').update({ status: 'approved' }).eq('id', id);
+                    loadPendingArticles();
+                    loadAllApprovedArticles();
+                });
+            });
+            document.querySelectorAll('[data-action="reject"]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.getAttribute('data-id');
+                    await supabase.from('articles').update({ status: 'rejected' }).eq('id', id);
+                    loadPendingArticles();
+                });
+            });
+        }
+
+        async function loadAllApprovedArticles() {
+            const { data: articles } = await supabase
+                .from('articles')
+                .select('id, title, author:author_id(display_name)')
+                .eq('status', 'approved')
+                .is('issue_id', null)
+                .order('submitted_at', { ascending: false });
+            const container = document.getElementById('articlesForIssue');
+            if (!articles || articles.length === 0) {
+                container.innerHTML = '<p>කලාපයකට එකතු කළ හැකි අනුමත ලිපි නොමැත.</p>';
+                return;
+            }
+            container.innerHTML = articles.map(art => `
+                <div><label><input type="checkbox" name="articleForIssue" value="${art.id}"> ${escapeHtml(art.title)} (${art.author?.display_name || 'නොදනී'})</label></div>
+            `).join('');
+        }
+
+        async function loadUsers() {
+            const { data: users } = await supabase
+                .from('users')
+                .select('id, email, display_name, role')
+                .order('created_at', { ascending: true });
+            const container = document.getElementById('userList');
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p>පරිශීලකයන් නොමැත.</p>';
+                return;
+            }
+            container.innerHTML = `
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead><tr><th>නම</th><th>ඊමේල්</th><th>භූමිකාව</th><th>ක්‍රියාව</th></tr></thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${escapeHtml(user.display_name)}</td>
+                                <td>${escapeHtml(user.email)}</td>
+                                <td>${user.role === 'admin' ? 'පරිපාලක' : 'කතෘ'}</td>
+                                <td>${user.id !== admin.id ? `<button class="btn-outline" data-user-id="${user.id}" data-current-role="${user.role}">${user.role === 'admin' ? 'කතෘ කරන්න' : 'පරිපාලක කරන්න'}</button>` : '(ඔබ)'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.querySelectorAll('[data-user-id]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const userId = btn.getAttribute('data-user-id');
+                    const currentRole = btn.getAttribute('data-current-role');
+                    const newRole = currentRole === 'admin' ? 'author' : 'admin';
+                    await supabase.from('users').update({ role: newRole }).eq('id', userId);
+                    loadUsers();
+                });
+            });
+        }
+
+        document.getElementById('createIssueForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('issueTitle').value;
+            const date = document.getElementById('issueDate').value;
+            const coverFile = document.getElementById('issueCover').files[0];
+            const selected = Array.from(document.querySelectorAll('input[name="articleForIssue"]:checked')).map(cb => cb.value);
+            if (!title || !date || selected.length === 0) {
+                alert('කරුණාකර කලාපයේ මාතෘකාව, දිනය සහ අවම වශයෙන් එක් ලිපියක් තෝරන්න.');
+                return;
+            }
+            let coverUrl = null;
+            if (coverFile) {
+                const fileName = `${Date.now()}.${coverFile.name.split('.').pop()}`;
+                await supabase.storage.from('covers').upload(`issues/${fileName}`, coverFile);
+                const { data: { publicUrl } } = supabase.storage.from('covers').getPublicUrl(`issues/${fileName}`);
+                coverUrl = publicUrl;
+            }
+            const { data: issue } = await supabase.from('issues').insert({ title, cover_image: coverUrl, published_date: date }).select().single();
+            await supabase.from('articles').update({ issue_id: issue.id, status: 'approved', approved_at: new Date() }).in('id', selected);
+            alert('කලාපය සාර්ථකව ප්‍රකාශයට පත් කරන ලදී.');
+            document.getElementById('createIssueForm').reset();
+            loadPendingArticles();
+            loadAllApprovedArticles();
+        });
+
+        function escapeHtml(str) { return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+
+        loadPendingArticles();
+        loadAllApprovedArticles();
+        loadUsers();
+    </script>
+</body>
+</html>
