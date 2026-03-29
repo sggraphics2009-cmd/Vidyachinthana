@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Test</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Supabase සම්බන්ධතා පරීක්ෂාව</h1>
+    <div id="result">පරීක්ෂා කරමින්...</div>
+
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js';
+
+        // ඔබගේ Supabase තොරතුරු
+        const SUPABASE_URL = 'https://qrbqdpxyuhcxefyztdmb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyYnFkcHh5dWhjeGVmeXp0ZG1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3MTU4MDcsImV4cCI6MjA5MDI5MTgwN30.5w1oC2DV9yEzA6oOWUqne5QF4Snu_Kq7vn5zneGyuK4';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            try {
+                // users වගුවෙන් පළමු පේළිය ලබාගැනීමට උත්සාහ කරන්න
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p style="color:red">දෝෂය: ${error.message}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p style="color:green">සාර්ථකයි! දත්ත: ${JSON.stringify(data)}</p>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p style="color:red">සම්බන්ධතා දෝෂය: ${err.message}</p>`;
+            }
+        }
+
+        testConnection();
+    </script>
+</body>
+</html>
