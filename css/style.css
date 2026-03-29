@@ -205,4 +205,51 @@ body {
   .container {
     padding: 0 0.75rem;
   }
+}  gap: 2rem;
+}
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  background: var(--primary);
+  color: white;
+}
+@media (max-width: 768px) {
+  .island-nav {
+    display: none;
+  }
+  .hamburger {
+    display: flex;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .container {
+    padding: 0 0.75rem;
+  }
 }
