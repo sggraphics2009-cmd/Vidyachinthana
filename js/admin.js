@@ -1,3 +1,5 @@
+import { supabase, getCurrentUser, requireAdmin } from './supabase.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const themeToggle = document.getElementById('themeToggle');
   if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
@@ -141,7 +143,7 @@ async function loadUsers() {
   }
   container.innerHTML = `
     <table style="width:100%; border-collapse: collapse;">
-      <thead><tr style="border-bottom:1px solid var(--border);"><th>නම</th><th>විද්‍යුත් ලිපිනය</th><th>භූමිකාව</th><th>ක්‍රියාව</th></tr></thead>
+      <thead><tr style="border-bottom:1px solid var(--border);"><th>නම</th><th>විද්‍යුත් ලිපිනය</th><th>භූමිකාව</th><th>ක්‍රියාව</th> </tr></thead>
       <tbody>
         ${users.map(user => `
           <tr style="border-bottom:1px solid var(--border);">
