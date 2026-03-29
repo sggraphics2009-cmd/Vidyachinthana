@@ -1,3 +1,5 @@
+import { supabase } from './supabase.js';
+
 const urlParams = new URLSearchParams(window.location.search);
 const articleId = urlParams.get('id');
 if (!articleId) window.location.href = 'index.html';
